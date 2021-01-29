@@ -12,6 +12,6 @@ export class AppController {
 
   @Get('/test')
   test(): string {
-    return 'TEST';
+    return this.appService.getTest();
   }
 }
