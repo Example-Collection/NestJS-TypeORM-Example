@@ -2,11 +2,13 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 
 @Controller('movies')
@@ -17,7 +19,13 @@ export class MoviesController {
   }
 
   @Get('/:id')
-  getMovieById(@Param('id', ParseIntPipe) id: string): string {
+  getMovieById(
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
+    )
+    id: string,
+  ): string {
     return `This is info about a movie. (ID : ${id}), ${typeof id}`;
   }
 
