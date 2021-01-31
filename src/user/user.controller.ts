@@ -7,7 +7,9 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Post()
-  saveUser(@Body(new UserInfoValidationPipe()) dto: UserCreateDto): string {
+  saveUser(
+    @Body(new UserInfoValidationPipe()) dto: UserCreateDto,
+  ): UserCreateDto {
     return this.userService.saveUser(dto);
   }
 }
