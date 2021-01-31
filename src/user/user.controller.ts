@@ -8,9 +8,9 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Post()
-  saveUser(
+  async saveUser(
     @Body(new UserInfoValidationPipe()) dto: UserCreateDto,
-  ): UserCreateDto {
+  ): Promise<UserCreateDto> {
     return this.userService.saveUser(dto);
   }
 
