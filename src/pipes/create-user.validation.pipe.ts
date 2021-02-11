@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
+import { UserCreateDto } from 'src/user/dtos/create-user.dto';
 
 @Injectable()
 export class UserInfoValidationPipe implements PipeTransform<any> {
