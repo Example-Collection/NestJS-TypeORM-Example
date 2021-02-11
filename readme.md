@@ -3,3 +3,37 @@
 - 이 프로젝트는 NestJS를 이용해 기본적인 CRUD를 수행하는 예시입니다.
 
 - 기술 스택 : TypeScript + NestJS + TypeORM
+
+<h2>기능 설명</h2>
+
+- 간단한 게시판 API를 구현할 것이다.  
+  사실상 모든 CRUD는 게시판의 연장선이라고 생각하기 때문이다.  
+  우선 테이블 구조는 아래와 같다.
+
+- 사용자(`users`) 테이블은 아래의 컬럼들을 가진다.
+
+  - user_id (INTEGER, PK)
+  - name (VARCHAR(200), NOT NULL)
+  - email (VARCHAR(200), NOT NULL, UNIQUE)
+  - password (VARCHAR(1000), NOT NULL)
+
+- 게시판(`boards`) 테이블은 아래의 컬럼들을 갖는다.
+
+  - board_id (INTEGER, PK)
+  - title (VARCHAR(400), NOT NULL)
+  - content (VARCHAR(1000), NOT NULL)
+  - created_at (DATETIME, NOT NULL)
+  - last_modified_at (DATETIME, NOT NULL)
+
+- 구현할 API 들은 아래와 같다.
+
+- [x] 회원 등록 : `[POST] /user`
+- [x] 회원 정보 수정 : `[PATCH] /user/{userId}`
+- [x] 회원 정보 조회 : `[GET] /user/{userId}`
+- [ ] 회원 정보 삭제 : `[DELETE] /user/{userId}`
+- [ ] 글 등록 : `[POST] /board`
+- [ ] 글 조회 : `[GET] /board/{boardId}`
+- [ ] 글 수정 : `[PATCH] /board/{boardId}`
+- [ ] 글 삭제 : `[DELETE] /board/{boardId}`
+
+- 마지막에는 JWT Token을 사용해서 권한 확인까지 구현할 예정이다.
