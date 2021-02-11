@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserCreateDto } from 'src/user/dtos/user/create-user.dto';
 import { User } from 'src/entities/user.entity';
@@ -21,11 +25,26 @@ export class UserService {
     return user;
   };
 
-  async saveUser(dto: UserCreateDto): Promise<UserInfoResponseDto> {
-    const user = await this.userRepository.save(
-      this.userCreateDtoToEntity(dto),
+  private isEmailUsed = async (email: string): Promise<boolean> => {
+    return (
+      (await this.userRepository
+        .createQueryBuilder()
+        .select('user.user_id')
+        .from(User, 'user')
+        .where('user.email = :email', { email })
+        .getOne()) !== undefined
     );
-    return new UserInfoResponseDto(user);
+  };
+
+  async saveUser(dto: UserCreateDto): Promise<UserInfoResponseDto> {
+    if (await this.isEmailUsed(dto.getEmail)) {
+      throw new ConflictException('Email is already in use!');
+    } else {
+      const user = await this.userRepository.save(
+        this.userCreateDtoToEntity(dto),
+      );
+      return new UserInfoResponseDto(user);
+    }
   }
 
   async getUserInfo(userId: number): Promise<UserInfoResponseDto> {
