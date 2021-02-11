@@ -1,8 +1,12 @@
 <h1>NestJS Example</hq>
 
+<h2>프로젝트 설명</h2>
+
 - 이 프로젝트는 NestJS를 이용해 기본적인 CRUD를 수행하는 예시입니다.
 
 - 기술 스택 : TypeScript + NestJS + TypeORM
+
+- 개발하며 정리한 글들 : <a href="https://github.com/sangwoo-98/Study/tree/master/NestJS/TypeORM%20%2B%20NestJS">링크</a>
 
 <h2>기능 설명</h2>
 
