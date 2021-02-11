@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Body,
   Controller,
@@ -13,8 +14,7 @@ import { UserService } from './user.service';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { UserInfoResponseDto } from './dtos/user/user-info.dto';
 import { UserUpdateDto } from './dtos/user/update-user.dto';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { BaiscMessageDto } from './dtos/common/basic-message.dto';
+import { BasicMessageDto } from './dtos/common/basic-message.dto';
 
 @Controller('user')
 export class UserController {
@@ -38,7 +38,7 @@ export class UserController {
   updateUserInfo(
     @Param('userId', ParseIntPipe) userId: number,
     @Body() dto: UserUpdateDto,
-  ): Promise<BaiscMessageDto> {
+  ): Promise<BasicMessageDto> {
     return this.userService.updateUserInfo(userId, dto);
   }
 }

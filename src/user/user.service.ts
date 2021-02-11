@@ -5,7 +5,7 @@ import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserInfoResponseDto } from './dtos/user/user-info.dto';
 import { UserUpdateDto } from './dtos/user/update-user.dto';
-import { BaiscMessageDto } from './dtos/common/basic-message.dto';
+import { BasicMessageDto } from './dtos/common/basic-message.dto';
 
 @Injectable()
 export class UserService {
@@ -38,11 +38,11 @@ export class UserService {
   async updateUserInfo(
     userId: number,
     dto: UserUpdateDto,
-  ): Promise<BaiscMessageDto> {
+  ): Promise<BasicMessageDto> {
     const user = await this.userRepository.findOne(userId);
     if (!!user) {
       await this.userRepository.save({ ...user, ...dto });
-      return new BaiscMessageDto('Updated Successfully.');
+      return new BasicMessageDto('Updated Successfully.');
     } else throw new NotFoundException();
   }
 }

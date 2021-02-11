@@ -1,4 +1,4 @@
-export class BaiscMessageDto {
+export class BasicMessageDto {
   constructor(message: string) {
     this.message = message;
   }
