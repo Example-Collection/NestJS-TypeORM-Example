@@ -9,6 +9,7 @@ import {
 import { UserCreateDto } from 'src/user/dtos/create-user.dto';
 import { UserInfoValidationPipe } from 'src/pipes/create-user.validation.pipe';
 import { UserService } from './user.service';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { UserInfoResponseDto } from './dtos/user-info.dto';
 
 @Controller('user')

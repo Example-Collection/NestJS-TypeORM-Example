@@ -6,8 +6,6 @@ import {
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { UserCreateDto } from 'src/user/dtos/create-user.dto';
 
 @Injectable()
 export class UserInfoValidationPipe implements PipeTransform<any> {
