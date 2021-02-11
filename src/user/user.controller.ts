@@ -13,6 +13,7 @@ import { UserService } from './user.service';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { UserInfoResponseDto } from './dtos/user/user-info.dto';
 import { UserUpdateDto } from './dtos/user/update-user.dto';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { BaiscMessageDto } from './dtos/common/basic-message.dto';
 
 @Controller('user')
