@@ -11,8 +11,18 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
+  userCreateDtoToEntity = (dto: UserCreateDto): User => {
+    const user = new User();
+    user.setEmail = dto.getEmail;
+    user.setName = dto.getName;
+    user.setPassword = dto.getPassword;
+    return user;
+  };
+
   async saveUser(dto: UserCreateDto): Promise<UserInfoResponseDto> {
-    const user = await this.userRepository.save(dto.toEntity());
+    const user = await this.userRepository.save(
+      this.userCreateDtoToEntity(dto),
+    );
     return new UserInfoResponseDto(user);
   }
 }

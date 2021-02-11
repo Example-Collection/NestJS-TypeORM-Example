@@ -1,6 +1,5 @@
 import { Body, Controller, Post, Put } from '@nestjs/common';
 import { UserCreateDto } from 'src/user/dtos/create-user.dto';
-import { UserUpdateDto } from 'src/user/dtos/update-user.dto';
 import { UserInfoValidationPipe } from 'src/pipes/create-user.validation.pipe';
 import { UserService } from './user.service';
 import { UserInfoResponseDto } from './dtos/user-info.dto';

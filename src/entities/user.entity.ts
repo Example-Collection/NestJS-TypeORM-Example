@@ -1,4 +1,3 @@
-import { UserInfoResponseDto } from 'src/user/dtos/user-info.dto';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -38,8 +37,4 @@ export class User {
   set setPassword(password: string) {
     this.password = password;
   }
-
-  toUserInfoResponseDto = (user: User): UserInfoResponseDto => {
-    return new UserInfoResponseDto(user);
-  };
 }

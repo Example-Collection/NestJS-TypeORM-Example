@@ -1,5 +1,4 @@
 import { IsEmail, IsString } from 'class-validator';
-import { User } from 'src/entities/user.entity';
 
 export class UserCreateDto {
   @IsString()
@@ -11,11 +10,15 @@ export class UserCreateDto {
   @IsString()
   private readonly password: string;
 
-  toEntity = (): User => {
-    const user = new User();
-    user.setName = this.name;
-    user.setEmail = this.email;
-    user.setPassword = this.password;
-    return user;
-  };
+  get getName(): string {
+    return this.name;
+  }
+
+  get getEmail(): string {
+    return this.email;
+  }
+
+  get getPassword(): string {
+    return this.password;
+  }
 }

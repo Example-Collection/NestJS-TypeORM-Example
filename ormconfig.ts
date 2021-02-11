@@ -5,6 +5,6 @@ module.exports = {
   password: process.env.DATASOURCE_PASSWORD,
   database: 'sangwoo',
   entities: ['dist/**/*.entity{.ts,.js}'],
-  synchronize: true,
-  type: 'mysql',
+  synchronize: false,
+  type: 'mariadb',
 };
