@@ -4,13 +4,16 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
-import { UserCreateDto } from 'src/user/dtos/create-user.dto';
+import { UserCreateDto } from 'src/user/dtos/user/create-user.dto';
 import { UserInfoValidationPipe } from 'src/pipes/create-user.validation.pipe';
 import { UserService } from './user.service';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { UserInfoResponseDto } from './dtos/user-info.dto';
+import { UserInfoResponseDto } from './dtos/user/user-info.dto';
+import { UserUpdateDto } from './dtos/user/update-user.dto';
+import { BaiscMessageDto } from './dtos/common/basic-message.dto';
 
 @Controller('user')
 export class UserController {
@@ -30,8 +33,11 @@ export class UserController {
     return this.userService.getUserInfo(userId);
   }
 
-  // @Put()
-  // updateUser(@Body() dto: UserUpdateDto): UserUpdateDto {
-  //   return this.userService.updateUser(dto);
-  // }
+  @Patch('/:userId')
+  updateUserInfo(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() dto: UserUpdateDto,
+  ): Promise<BaiscMessageDto> {
+    return this.userService.updateUserInfo(userId, dto);
+  }
 }
