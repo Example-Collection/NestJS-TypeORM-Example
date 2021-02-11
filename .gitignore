@@ -35,3 +35,6 @@ lerna-debug.log*
 
 # Environemt Variables
 .env
+
+# Datasource files
+/ormconfig.ts
