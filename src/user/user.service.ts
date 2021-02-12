@@ -19,9 +19,9 @@ export class UserService {
 
   private userCreateDtoToEntity = (dto: UserCreateDto): User => {
     const user = new User();
-    user.setEmail = dto.getEmail;
-    user.setName = dto.getName;
-    user.setPassword = dto.getPassword;
+    user.setEmail = dto.email;
+    user.setName = dto.name;
+    user.setPassword = dto.password;
     return user;
   };
 
@@ -37,7 +37,7 @@ export class UserService {
   };
 
   async saveUser(dto: UserCreateDto): Promise<UserInfoResponseDto> {
-    if (await this.isEmailUsed(dto.getEmail)) {
+    if (await this.isEmailUsed(dto.email)) {
       throw new ConflictException('Email is already in use!');
     } else {
       const user = await this.userRepository.save(
@@ -58,9 +58,8 @@ export class UserService {
     userId: number,
     dto: UserUpdateDto,
   ): Promise<BasicMessageDto> {
-    const user = await this.userRepository.findOne(userId);
-    if (!!user) {
-      await this.userRepository.save({ ...user, ...dto });
+    const result = await this.userRepository.update(userId, { ...dto });
+    if (result.affected !== 0) {
       return new BasicMessageDto('Updated Successfully.');
     } else throw new NotFoundException();
   }
