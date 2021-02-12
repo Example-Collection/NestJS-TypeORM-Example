@@ -65,10 +65,9 @@ export class UserService {
   }
 
   async removeUser(userId: number): Promise<BasicMessageDto> {
-    const user = await this.userRepository.findOne(userId);
-    if (!!user) {
-      this.userRepository.remove(user);
-      return new BasicMessageDto('Removed Successfully.');
+    const result = await this.userRepository.delete(userId);
+    if (result.affected !== 0) {
+      return new BasicMessageDto('Deleted Successfully.');
     } else throw new NotFoundException();
   }
 }
