@@ -63,4 +63,12 @@ export class UserService {
       return new BasicMessageDto('Updated Successfully.');
     } else throw new NotFoundException();
   }
+
+  async removeUser(userId: number): Promise<BasicMessageDto> {
+    const user = await this.userRepository.findOne(userId);
+    if (!!user) {
+      this.userRepository.remove(user);
+      return new BasicMessageDto('Removed Successfully.');
+    } else throw new NotFoundException();
+  }
 }

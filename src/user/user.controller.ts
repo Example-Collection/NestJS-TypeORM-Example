@@ -2,6 +2,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -40,5 +41,10 @@ export class UserController {
     @Body() dto: UserUpdateDto,
   ): Promise<BasicMessageDto> {
     return this.userService.updateUserInfo(userId, dto);
+  }
+
+  @Delete('/:userId')
+  removeUser(@Param('userId', ParseIntPipe) userId: number) {
+    return this.userService.removeUser(userId);
   }
 }
