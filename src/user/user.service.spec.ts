@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { Connection, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { createMemoryDB } from '../utils/create-memory-db';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('UserService Logic Test', () => {
   let userService: UserService;
@@ -69,6 +69,28 @@ describe('UserService Logic Test', () => {
       await userService.saveUser(dto);
     } catch (exception) {
       expect(exception).toBeInstanceOf(ConflictException);
+    }
+  });
+
+  it('Should get user info correctly', async () => {
+    let savedUser = new User();
+    savedUser.setName = NAME;
+    savedUser.setEmail = EMAIL;
+    savedUser.setPassword = PASSWORD;
+    savedUser = await userRepository.save(savedUser);
+
+    const response = await userService.getUserInfo(savedUser.getUser_id);
+    expect(response.user_id).toBe(savedUser.getUser_id);
+    expect(response.email).toBe(savedUser.getEmail);
+    expect(response.name).toBe(savedUser.getName);
+  });
+
+  it('Should throw NotFoundException if user_id is invalid', async () => {
+    expect.assertions(1);
+    try {
+      await userService.getUserInfo(-1);
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(NotFoundException);
     }
   });
 });
