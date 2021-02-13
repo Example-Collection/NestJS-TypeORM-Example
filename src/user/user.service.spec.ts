@@ -1,10 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { UserCreateDto } from './dtos/create-user.dto';
 import { UserService } from './user.service';
-import { UserModule } from './user.module';
-import { UserRepository } from '../entities/user.repository';
-import { Connection, getConnection, getRepository, Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { createMemoryDB } from '../utils/create-memory-db';
 
@@ -21,32 +17,12 @@ describe('UserService Logic Test', () => {
     connection = await createMemoryDB([User]);
     userRepository = await connection.getRepository(User);
     userService = new UserService(userRepository);
-    // const module: TestingModule = await Test.createTestingModule({
-    //   imports: [
-    //     TypeOrmModule.forRoot({
-    //       type: 'sqlite',
-    //       database: ':memory:',
-    //       logging: false,
-    //       synchronize: true,
-    //       entities: ['src/**/*.entity{.ts,.js}'],
-    //       name: 'CON4TEST',
-    //     }),
-    //     TypeOrmModule.forFeature([User], 'CON4TEST'),
-    //   ],
-    //   providers: [
-    //     UserService,
-    //     {
-    //       provide: getRepositoryToken(User),
-    //       useValue: {},
-    //     },
-    //   ],
   });
 
   afterEach(async () => {
     await connection.close();
   });
 
-  //userService = module.get<UserService>(UserService);
   it('should be defined', () => {
     expect(userService).toBeDefined();
   });
@@ -58,7 +34,6 @@ describe('UserService Logic Test', () => {
     dto.password = PASSWORD;
 
     const responseDto = await userService.saveUser(dto);
-    console.log(responseDto);
     expect(responseDto.name).toBe(NAME);
     expect(responseDto.email).toBe(EMAIL);
     expect(typeof responseDto.user_id).toBe('number');
