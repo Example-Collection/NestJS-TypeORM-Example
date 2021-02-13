@@ -26,6 +26,10 @@ export class User extends BaseEntity {
     return this.email;
   }
 
+  get getPassword(): string {
+    return this.password;
+  }
+
   set setEmail(email: string) {
     this.email = email;
   }

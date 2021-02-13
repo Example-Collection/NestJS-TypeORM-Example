@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { Connection, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { createMemoryDB } from '../utils/create-memory-db';
+import { ConflictException } from '@nestjs/common';
 
 describe('UserService Logic Test', () => {
   let userService: UserService;
@@ -13,14 +14,18 @@ describe('UserService Logic Test', () => {
   const EMAIL = 'test@test.com';
   const PASSWORD = '1234abc5';
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     connection = await createMemoryDB([User]);
     userRepository = await connection.getRepository(User);
     userService = new UserService(userRepository);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await connection.close();
+  });
+
+  afterEach(async () => {
+    await userRepository.query('DELETE FROM users');
   });
 
   it('should be defined', () => {
@@ -37,5 +42,33 @@ describe('UserService Logic Test', () => {
     expect(responseDto.name).toBe(NAME);
     expect(responseDto.email).toBe(EMAIL);
     expect(typeof responseDto.user_id).toBe('number');
+
+    const savedUser = await userRepository.findOne(responseDto.user_id);
+
+    expect(savedUser.getUser_id).toBe(responseDto.user_id);
+    expect(savedUser.getName).toBe(responseDto.name);
+    expect(savedUser.getEmail).toBe(responseDto.email);
+    expect(savedUser.getPassword).toBe(PASSWORD);
+  });
+
+  it('Should not save user and throw ConflictException', async () => {
+    expect.assertions(1);
+
+    const savedUser = new User();
+    savedUser.setName = NAME;
+    savedUser.setEmail = EMAIL;
+    savedUser.setPassword = PASSWORD;
+    await userRepository.save(savedUser);
+
+    const dto = new UserCreateDto();
+    dto.name = NAME;
+    dto.email = EMAIL;
+    dto.password = PASSWORD;
+
+    try {
+      await userService.saveUser(dto);
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(ConflictException);
+    }
   });
 });
