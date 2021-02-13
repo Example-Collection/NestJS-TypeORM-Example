@@ -8,7 +8,7 @@ import { User } from '../entities/user.entity';
 import { UserInfoResponseDto } from './dtos/user-info.dto';
 import { UserUpdateDto } from './dtos/update-user.dto';
 import { BasicMessageDto } from '../common/dtos/basic-message.dto';
-import { UserRepository } from 'src/entities/user.repository';
+import { UserRepository } from '../entities/user.repository';
 
 @Injectable()
 export class UserService {
