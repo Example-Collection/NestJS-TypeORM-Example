@@ -4,12 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserCreateDto } from 'src/user/dtos/user/create-user.dto';
+import { UserCreateDto } from 'src/user/dtos/create-user.dto';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
-import { UserInfoResponseDto } from './dtos/user/user-info.dto';
-import { UserUpdateDto } from './dtos/user/update-user.dto';
-import { BasicMessageDto } from './dtos/common/basic-message.dto';
+import { UserInfoResponseDto } from './dtos/user-info.dto';
+import { UserUpdateDto } from './dtos/update-user.dto';
+import { BasicMessageDto } from '../common/dtos/basic-message.dto';
 
 @Injectable()
 export class UserService {
