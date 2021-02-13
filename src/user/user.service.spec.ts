@@ -1,14 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../entities/user.entity';
-import { createConnection, getConnection, Repository } from 'typeorm';
 import { UserCreateDto } from './dtos/create-user.dto';
 import { UserService } from './user.service';
 import { UserModule } from './user.module';
 
 describe('UserService', () => {
   let service: UserService;
-  let userRepository: Repository<User>;
 
   const NAME = 'NAME';
   const EMAIL = 'test@test.com';
@@ -18,15 +14,14 @@ describe('UserService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         UserModule,
-        TypeOrmModule.forRoot({
-          type: 'sqlite',
-          database: ':memory:',
-          logging: false,
-          synchronize: true,
-          entities: ['dist/**/*.entity{.ts,.js}'],
-          name: 'TestConnection',
-        }),
-        TypeOrmModule.forFeature([User]),
+        // TypeOrmModule.forRoot({
+        //   type: 'sqlite',
+        //   database: ':memory:',
+        //   logging: false,
+        //   synchronize: true,
+        //   entities: ['dist/**/*.entity{.ts,.js}'],
+        //   name: 'TestConnection',
+        // }),
       ],
       providers: [UserService],
     }).compile();
