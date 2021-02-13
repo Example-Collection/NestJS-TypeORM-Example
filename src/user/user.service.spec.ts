@@ -58,8 +58,9 @@ describe('UserService Logic Test', () => {
     dto.password = PASSWORD;
 
     const responseDto = await userService.saveUser(dto);
-    expect(responseDto.getName).toBe(NAME);
-    expect(responseDto.getEmail).toBe(EMAIL);
-    expect(responseDto.getUserId).toBeInstanceOf(Number);
+    console.log(responseDto);
+    expect(responseDto.name).toBe(NAME);
+    expect(responseDto.email).toBe(EMAIL);
+    expect(typeof responseDto.user_id).toBe('number');
   });
 });

@@ -6,19 +6,7 @@ export class UserInfoResponseDto {
     this.name = user.getName;
     this.email = user.getEmail;
   }
-  private user_id: number;
-  private name: string;
-  private email: string;
-
-  get getUserId(): number {
-    return this.user_id;
-  }
-
-  get getName(): string {
-    return this.name;
-  }
-
-  get getEmail(): string {
-    return this.email;
-  }
+  user_id: number;
+  name: string;
+  email: string;
 }

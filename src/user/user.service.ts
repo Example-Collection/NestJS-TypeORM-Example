@@ -26,9 +26,9 @@ export class UserService {
     return (
       (await this.userRepository
         .createQueryBuilder()
-        .select('user.user_id')
-        .from(User, 'user')
-        .where('user.email = :email', { email })
+        .select('u.user_id')
+        .from(User, 'u')
+        .where('u.email = :email', { email })
         .getOne()) !== undefined
     );
   };
