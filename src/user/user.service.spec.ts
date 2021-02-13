@@ -4,47 +4,49 @@ import { UserCreateDto } from './dtos/create-user.dto';
 import { UserService } from './user.service';
 import { UserModule } from './user.module';
 import { UserRepository } from '../entities/user.repository';
-import { getConnection, getRepository } from 'typeorm';
+import { Connection, getConnection, getRepository, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
+import { createMemoryDB } from '../utils/create-memory-db';
 
 describe('UserService Logic Test', () => {
   let userService: UserService;
-  // let userRepository: UserRepository;
+  let connection: Connection;
+  let userRepository: Repository<User>;
 
   const NAME = 'NAME';
   const EMAIL = 'test@test.com';
   const PASSWORD = '1234abc5';
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        TypeOrmModule.forRoot({
-          type: 'sqlite',
-          database: ':memory:',
-          logging: false,
-          synchronize: true,
-          entities: ['src/**/*.entity{.ts,.js}'],
-          name: 'CON4TEST',
-        }),
-        TypeOrmModule.forFeature([User], 'CON4TEST'),
-      ],
-      providers: [
-        UserService,
-        {
-          provide: getRepositoryToken(User),
-          useValue: {},
-        },
-      ],
-    }).compile();
-
-    userService = module.get<UserService>(UserService);
+    connection = await createMemoryDB([User]);
+    userRepository = await connection.getRepository(User);
+    userService = new UserService(userRepository);
+    // const module: TestingModule = await Test.createTestingModule({
+    //   imports: [
+    //     TypeOrmModule.forRoot({
+    //       type: 'sqlite',
+    //       database: ':memory:',
+    //       logging: false,
+    //       synchronize: true,
+    //       entities: ['src/**/*.entity{.ts,.js}'],
+    //       name: 'CON4TEST',
+    //     }),
+    //     TypeOrmModule.forFeature([User], 'CON4TEST'),
+    //   ],
+    //   providers: [
+    //     UserService,
+    //     {
+    //       provide: getRepositoryToken(User),
+    //       useValue: {},
+    //     },
+    //   ],
   });
 
   afterEach(async () => {
-    const connection = getConnection('CON4TEST');
-    return await connection.close();
+    await connection.close();
   });
 
+  //userService = module.get<UserService>(UserService);
   it('should be defined', () => {
     expect(userService).toBeDefined();
   });
