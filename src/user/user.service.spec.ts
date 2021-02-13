@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
-import { Repository } from 'typeorm';
+import { createConnection, getConnection, Repository } from 'typeorm';
 import { UserCreateDto } from './dtos/create-user.dto';
-import { UserInfoResponseDto } from './dtos/user-info.dto';
 import { UserService } from './user.service';
+import { UserModule } from './user.module';
 
 describe('UserService', () => {
   let service: UserService;
@@ -17,12 +17,14 @@ describe('UserService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        UserModule,
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
           logging: false,
           synchronize: true,
-          entities: ['dist/**/*.entity{.ts,.js'],
+          entities: ['dist/**/*.entity{.ts,.js}'],
+          name: 'TestConnection',
         }),
         TypeOrmModule.forFeature([User]),
       ],
@@ -30,7 +32,20 @@ describe('UserService', () => {
     }).compile();
 
     service = module.get<UserService>(UserService);
+
+    // return createConnection({
+    //   type: 'sqlite',
+    //   database: ':memory:',
+    //   logging: false,
+    //   synchronize: true,
+    //   entities: ['dist/**/*.entity{.ts,.js'],
+    // });
   });
+
+  // afterEach(async () => {
+  //   const connection = getConnection();
+  //   return connection.close();
+  // });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
