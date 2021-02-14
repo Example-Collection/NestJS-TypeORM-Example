@@ -10,9 +10,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { UserCreateDto } from '../user/dtos/create-user.dto';
-import { UserInfoValidationPipe } from '../pipes/create-user.validation.pipe';
 import { UserService } from './user.service';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { UserInfoResponseDto } from './dtos/user-info.dto';
 import { UserUpdateDto } from './dtos/update-user.dto';
 import { BasicMessageDto } from '../common/dtos/basic-message.dto';
@@ -22,9 +20,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  saveUser(
-    @Body(new UserInfoValidationPipe()) dto: UserCreateDto,
-  ): Promise<UserInfoResponseDto> {
+  saveUser(@Body() dto: UserCreateDto): Promise<UserInfoResponseDto> {
     return this.userService.saveUser(dto);
   }
 
