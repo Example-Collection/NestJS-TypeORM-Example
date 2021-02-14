@@ -4,6 +4,8 @@ import { Connection, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { createMemoryDB } from '../utils/create-memory-db';
 import { ConflictException, NotFoundException } from '@nestjs/common';
+import { UserUpdateDto } from './dtos/update-user.dto';
+import { BasicMessageDto } from '../common/dtos/basic-message.dto';
 
 describe('UserService Logic Test', () => {
   let userService: UserService;
@@ -13,6 +15,14 @@ describe('UserService Logic Test', () => {
   const NAME = 'NAME';
   const EMAIL = 'test@test.com';
   const PASSWORD = '1234abc5';
+
+  const saveUser = async (): Promise<User> => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    return await userRepository.save(savedUser);
+  };
 
   beforeAll(async () => {
     connection = await createMemoryDB([User]);
@@ -54,11 +64,7 @@ describe('UserService Logic Test', () => {
   it('Should not save user and throw ConflictException', async () => {
     expect.assertions(1);
 
-    const savedUser = new User();
-    savedUser.setName = NAME;
-    savedUser.setEmail = EMAIL;
-    savedUser.setPassword = PASSWORD;
-    await userRepository.save(savedUser);
+    await saveUser();
 
     const dto = new UserCreateDto();
     dto.name = NAME;
@@ -73,11 +79,7 @@ describe('UserService Logic Test', () => {
   });
 
   it('Should get user info correctly', async () => {
-    let savedUser = new User();
-    savedUser.setName = NAME;
-    savedUser.setEmail = EMAIL;
-    savedUser.setPassword = PASSWORD;
-    savedUser = await userRepository.save(savedUser);
+    const savedUser = await saveUser();
 
     const response = await userService.getUserInfo(savedUser.getUser_id);
     expect(response.user_id).toBe(savedUser.getUser_id);
@@ -92,5 +94,58 @@ describe('UserService Logic Test', () => {
     } catch (exception) {
       expect(exception).toBeInstanceOf(NotFoundException);
     }
+  });
+
+  it('Should update user infos(Both name and password)', async () => {
+    const savedUser = await saveUser();
+
+    const updateDto = new UserUpdateDto();
+    updateDto.name = 'NEW_NAME';
+    updateDto.password = 'NEW_PASSWORD';
+
+    const response = await userService.updateUserInfo(
+      savedUser.getUser_id,
+      updateDto,
+    );
+
+    expect(response).toBeInstanceOf(BasicMessageDto);
+
+    const updatedUser = await userRepository.findOne(savedUser.getUser_id);
+    expect(updatedUser.getName).toBe('NEW_NAME');
+    expect(updatedUser.getPassword).toBe('NEW_PASSWORD');
+  });
+
+  it('Should update user info(Only name)', async () => {
+    const savedUser = await saveUser();
+
+    const updateDto = new UserUpdateDto();
+    updateDto.name = 'NEW_NAME';
+
+    const response = await userService.updateUserInfo(
+      savedUser.getUser_id,
+      updateDto,
+    );
+    expect(response).toBeInstanceOf(BasicMessageDto);
+
+    const updatedUser = await userRepository.findOne(savedUser.getUser_id);
+    expect(updatedUser.getName).toBe('NEW_NAME');
+    expect(updatedUser.getPassword).toBe(PASSWORD);
+  });
+
+  it('Should update user info(Only password)', async () => {
+    const savedUser = await saveUser();
+
+    const updateDto = new UserUpdateDto();
+    updateDto.password = 'NEW_PASSWORD';
+
+    const response = await userService.updateUserInfo(
+      savedUser.getUser_id,
+      updateDto,
+    );
+    expect(response).toBeInstanceOf(BasicMessageDto);
+
+    const updatedUser = await userRepository.findOne(savedUser.getUser_id);
+    expect(updatedUser.getName).toBe(NAME);
+    expect(updatedUser.getPassword).toBe('NEW_PASSWORD');
   });
 });
