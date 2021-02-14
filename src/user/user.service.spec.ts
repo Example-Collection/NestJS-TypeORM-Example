@@ -148,4 +148,14 @@ describe('UserService Logic Test', () => {
     expect(updatedUser.getName).toBe(NAME);
     expect(updatedUser.getPassword).toBe('NEW_PASSWORD');
   });
+
+  it('Should remove user', async () => {
+    const savedUser = await saveUser();
+
+    const response = await userService.removeUser(savedUser.getUser_id);
+    expect(response).toBeInstanceOf(BasicMessageDto);
+
+    const user = await userRepository.findOne(savedUser.getUser_id);
+    expect(user).toBeUndefined();
+  });
 });
