@@ -2,7 +2,7 @@ import { UserCreateDto } from './dtos/create-user.dto';
 import { UserService } from './user.service';
 import { Connection, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { createMemoryDB } from '../utils/create-memory-db';
+import { createMemoryDB } from '../utils/connections/create-memory-db';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { UserUpdateDto } from './dtos/update-user.dto';
 import { BasicMessageDto } from '../common/dtos/basic-message.dto';
