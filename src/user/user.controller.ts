@@ -14,6 +14,8 @@ import { UserService } from './user.service';
 import { UserInfoResponseDto } from './dtos/user-info.dto';
 import { UserUpdateDto } from './dtos/update-user.dto';
 import { BasicMessageDto } from '../common/dtos/basic-message.dto';
+import { UserLoginRequestDto } from './dtos/user-login-request.dto';
+import { UserLoginResponseDto } from './dtos/user-login-response.dto';
 
 @Controller('user')
 export class UserController {
@@ -42,5 +44,10 @@ export class UserController {
   @Delete('/:userId')
   removeUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.userService.removeUser(userId);
+  }
+
+  @Post('/login')
+  login(@Body() dto: UserLoginRequestDto): Promise<UserLoginResponseDto> {
+    return this.userService.login(dto);
   }
 }
