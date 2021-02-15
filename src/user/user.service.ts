@@ -11,7 +11,7 @@ import { BasicMessageDto } from '../common/dtos/basic-message.dto';
 import { UserRepository } from '../entities/user.repository';
 import { UserLoginRequestDto } from './dtos/user-login-request.dto';
 import { UserLoginResponseDto } from './dtos/user-login-response.dto';
-import { generateAccessToken } from 'src/utils/auth/jwt-token-util';
+import { generateAccessToken } from '../utils/auth/jwt-token-util';
 
 @Injectable()
 export class UserService {
@@ -79,13 +79,12 @@ export class UserService {
   async login(dto: UserLoginRequestDto): Promise<UserLoginResponseDto> {
     const email = dto.email;
     const password = dto.password;
-    const user = await this.userRepository
-      .createQueryBuilder()
-      .select('*')
-      .where('u.email = :email', { email })
-      .andWhere('u.password = :password', { password })
-      .from(User, 'u')
-      .execute();
+    const user = await this.userRepository.findOne({
+      where: {
+        email: email,
+        password: password,
+      },
+    });
     if (!!user) {
       const dto = new UserLoginResponseDto(user);
       dto.accessToken = generateAccessToken(user.getUser_id);
