@@ -7,6 +7,7 @@ import { UserService } from '../src/user/user.service';
 import { Repository } from 'typeorm';
 import * as request from 'supertest';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ValidationPipe } from '@nestjs/common';
 
 describe('UserController (e2e)', () => {
   let userService: UserService;
@@ -20,6 +21,7 @@ describe('UserController (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         UserModule,
+
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
@@ -31,6 +33,13 @@ describe('UserController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
     await app.init();
     userRepository = moduleFixture.get('UserRepository');
     userService = new UserService(userRepository);
@@ -58,5 +67,13 @@ describe('UserController (e2e)', () => {
     expect(JSON.stringify(result.body)).toBe(
       JSON.stringify(await userService.getUserInfo(userId)),
     );
+  });
+
+  it('[POST] /user: Response is BAD_REQUEST if email is missing', async () => {
+    const dto = new UserCreateDto();
+    dto.name = NAME;
+    dto.password = PASSWORD;
+    const result = await request(app.getHttpServer()).post('/user').send(dto);
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST);
   });
 });
