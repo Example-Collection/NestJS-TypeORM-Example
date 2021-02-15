@@ -116,4 +116,23 @@ describe('UserController (e2e)', () => {
     const result = await request(app.getHttpServer()).post('/user').send(dto);
     expect(result.status).toBe(HttpStatus.CONFLICT);
   });
+
+  it('[GET] /user/{userId} : Response is OK if userId exists.', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    const userId = (await userRepository.save(savedUser)).getUser_id;
+
+    const result = await request(app.getHttpServer()).get(`/user/${userId}`);
+    expect(result.status).toBe(HttpStatus.OK);
+    expect(JSON.stringify(result.body)).toBe(
+      JSON.stringify(await userService.getUserInfo(userId)),
+    );
+  });
+
+  it('[GET] /user/{userId} : Response is NOT_FOUND if userId does not exist', async () => {
+    const result = await request(app.getHttpServer()).get('/user/-1');
+    expect(result.status).toBe(HttpStatus.NOT_FOUND);
+  });
 });
