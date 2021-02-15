@@ -34,7 +34,7 @@
 - [x] 회원 등록 : `[POST] /user`
 - [x] 회원 정보 수정 : `[PATCH] /user/{userId}`
 - [x] 회원 정보 조회 : `[GET] /user/{userId}`
-- [ ] 회원 정보 삭제 : `[DELETE] /user/{userId}`
+- [x] 회원 정보 삭제 : `[DELETE] /user/{userId}`
 - [ ] 글 등록 : `[POST] /board`
 - [ ] 글 조회 : `[GET] /board/{boardId}`
 - [ ] 글 수정 : `[PATCH] /board/{boardId}`
