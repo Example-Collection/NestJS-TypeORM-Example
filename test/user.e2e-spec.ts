@@ -101,4 +101,19 @@ describe('UserController (e2e)', () => {
     const result = await request(app.getHttpServer()).post('/user').send(dto);
     expect(result.status).toBe(HttpStatus.BAD_REQUEST);
   });
+
+  it('[POST] /user: Response is CONFLICT if email already exists.', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    await userRepository.save(savedUser);
+
+    const dto = new UserCreateDto();
+    dto.email = EMAIL;
+    dto.name = NAME;
+    dto.password = PASSWORD;
+    const result = await request(app.getHttpServer()).post('/user').send(dto);
+    expect(result.status).toBe(HttpStatus.CONFLICT);
+  });
 });
