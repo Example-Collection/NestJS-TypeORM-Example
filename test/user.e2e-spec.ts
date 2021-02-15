@@ -26,7 +26,7 @@ describe('UserController (e2e)', () => {
           type: 'sqlite',
           database: ':memory:',
           entities: [User],
-          logging: true,
+          logging: false,
           synchronize: true,
         }),
       ],
@@ -71,6 +71,31 @@ describe('UserController (e2e)', () => {
 
   it('[POST] /user: Response is BAD_REQUEST if email is missing', async () => {
     const dto = new UserCreateDto();
+    dto.name = NAME;
+    dto.password = PASSWORD;
+    const result = await request(app.getHttpServer()).post('/user').send(dto);
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST);
+  });
+
+  it('POST] /user: Response is BAD_REQUEST if name is missing', async () => {
+    const dto = new UserCreateDto();
+    dto.email = EMAIL;
+    dto.password = PASSWORD;
+    const result = await request(app.getHttpServer()).post('/user').send(dto);
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST);
+  });
+
+  it('POST] /user: Response is BAD_REQUEST if password is missing', async () => {
+    const dto = new UserCreateDto();
+    dto.email = EMAIL;
+    dto.name = NAME;
+    const result = await request(app.getHttpServer()).post('/user').send(dto);
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST);
+  });
+
+  it('POST] /user: Response is BAD_REQUEST if email is not type of email', async () => {
+    const dto = new UserCreateDto();
+    dto.email = 'NOT_FORM_OF_EMAIL';
     dto.name = NAME;
     dto.password = PASSWORD;
     const result = await request(app.getHttpServer()).post('/user').send(dto);
