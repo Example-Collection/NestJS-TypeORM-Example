@@ -39,5 +39,3 @@
 - [ ] 글 조회 : `[GET] /board/{boardId}`
 - [ ] 글 수정 : `[PATCH] /board/{boardId}`
 - [ ] 글 삭제 : `[DELETE] /board/{boardId}`
-
-- 마지막에는 JWT Token을 사용해서 권한 확인까지 구현할 예정이다.
