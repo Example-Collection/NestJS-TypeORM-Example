@@ -3,13 +3,19 @@ import { UserService } from './user.service';
 import { Connection, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { createMemoryDB } from '../utils/connections/create-memory-db';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserUpdateDto } from './dtos/update-user.dto';
 import { BasicMessageDto } from '../common/dtos/basic-message.dto';
-import { UserLoginResponseDto } from './dtos/user-login-response.dto';
 import { UserLoginRequestDto } from './dtos/user-login-request.dto';
-import { extractUserId } from '../utils/auth/jwt-token-util';
-import { request } from 'express';
+import {
+  extractUserId,
+  generateAccessToken,
+} from '../utils/auth/jwt-token-util';
 
 describe('UserService Logic Test', () => {
   let userService: UserService;
@@ -19,6 +25,7 @@ describe('UserService Logic Test', () => {
   const NAME = 'NAME';
   const EMAIL = 'test@test.com';
   const PASSWORD = '1234abc5';
+  const WRONG_TOKEN = 'asdfasdf';
 
   const saveUser = async (): Promise<User> => {
     const savedUser = new User();
@@ -85,7 +92,10 @@ describe('UserService Logic Test', () => {
   it('Should get user info correctly', async () => {
     const savedUser = await saveUser();
 
-    const response = await userService.getUserInfo(savedUser.getUser_id);
+    const response = await userService.getUserInfo(
+      savedUser.getUser_id,
+      generateAccessToken(savedUser.getUser_id),
+    );
     expect(response.user_id).toBe(savedUser.getUser_id);
     expect(response.email).toBe(savedUser.getEmail);
     expect(response.name).toBe(savedUser.getName);
@@ -94,9 +104,32 @@ describe('UserService Logic Test', () => {
   it('Should throw NotFoundException if user_id is invalid', async () => {
     expect.assertions(1);
     try {
-      await userService.getUserInfo(-1);
+      await userService.getUserInfo(-1, generateAccessToken(-1));
     } catch (exception) {
       expect(exception).toBeInstanceOf(NotFoundException);
+    }
+  });
+
+  it('Should throw ForbiddenException if userId in token is not equal to path parameter', async () => {
+    expect.assertions(1);
+    const savedUser = await saveUser();
+    try {
+      await userService.getUserInfo(
+        savedUser.getUser_id,
+        generateAccessToken(-1),
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(ForbiddenException);
+    }
+  });
+
+  it('Should throw UnauthorizedException if token is wrong', async () => {
+    expect.assertions(1);
+    const savedUser = await saveUser();
+    try {
+      await userService.getUserInfo(savedUser.getUser_id, WRONG_TOKEN);
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(UnauthorizedException);
     }
   });
 
