@@ -173,8 +173,7 @@ describe('UserService Logic Test', () => {
     expect(response.email).toBe(EMAIL);
     expect(response.name).toBe(NAME);
     expect(response.user_id).toBe(savedUser.getUser_id);
-    expect(extractUserId(response.accessToken).valueOf(user_id)).toBe(
-      savedUser.getUser_id,
-    );
+    extractUserId(response.accessToken);
+    expect(extractUserId(response.accessToken)).toBe(savedUser.getUser_id);
   });
 });
