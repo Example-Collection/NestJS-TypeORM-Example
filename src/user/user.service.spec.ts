@@ -53,7 +53,7 @@ describe('UserService Logic Test', () => {
     expect(userService).toBeDefined();
   });
 
-  it('Should Save User', async () => {
+  it('saveUser(): Should Save User', async () => {
     const dto = new UserCreateDto();
     dto.name = NAME;
     dto.email = EMAIL;
@@ -72,7 +72,7 @@ describe('UserService Logic Test', () => {
     expect(savedUser.getPassword).toBe(PASSWORD);
   });
 
-  it('Should not save user and throw ConflictException', async () => {
+  it('saveUser(): Should not save user and throw ConflictException', async () => {
     expect.assertions(1);
 
     await saveUser();
@@ -89,7 +89,7 @@ describe('UserService Logic Test', () => {
     }
   });
 
-  it('Should get user info correctly', async () => {
+  it('getUserInfo(): Should get user info correctly', async () => {
     const savedUser = await saveUser();
 
     const response = await userService.getUserInfo(
@@ -101,7 +101,7 @@ describe('UserService Logic Test', () => {
     expect(response.name).toBe(savedUser.getName);
   });
 
-  it('Should throw NotFoundException if user_id is invalid', async () => {
+  it('getUserInfo(): Should throw NotFoundException if user_id is invalid', async () => {
     expect.assertions(1);
     try {
       await userService.getUserInfo(-1, generateAccessToken(-1));
@@ -110,7 +110,7 @@ describe('UserService Logic Test', () => {
     }
   });
 
-  it('Should throw ForbiddenException if userId in token is not equal to path parameter', async () => {
+  it('getUserInfo(): Should throw ForbiddenException if userId in token is not equal to path parameter', async () => {
     expect.assertions(1);
     const savedUser = await saveUser();
     try {
@@ -123,7 +123,7 @@ describe('UserService Logic Test', () => {
     }
   });
 
-  it('Should throw UnauthorizedException if token is wrong', async () => {
+  it('getUserInfo(): Should throw UnauthorizedException if token is wrong', async () => {
     expect.assertions(1);
     const savedUser = await saveUser();
     try {
@@ -133,7 +133,7 @@ describe('UserService Logic Test', () => {
     }
   });
 
-  it('Should update user infos(Both name and password)', async () => {
+  it('updateUserInfo(): Should update user infos(Both name and password)', async () => {
     const savedUser = await saveUser();
 
     const updateDto = new UserUpdateDto();
@@ -143,6 +143,7 @@ describe('UserService Logic Test', () => {
     const response = await userService.updateUserInfo(
       savedUser.getUser_id,
       updateDto,
+      generateAccessToken(savedUser.getUser_id),
     );
 
     expect(response).toBeInstanceOf(BasicMessageDto);
@@ -152,7 +153,7 @@ describe('UserService Logic Test', () => {
     expect(updatedUser.getPassword).toBe('NEW_PASSWORD');
   });
 
-  it('Should update user info(Only name)', async () => {
+  it('updateUserInfo(): Should update user info(Only name)', async () => {
     const savedUser = await saveUser();
 
     const updateDto = new UserUpdateDto();
@@ -161,6 +162,7 @@ describe('UserService Logic Test', () => {
     const response = await userService.updateUserInfo(
       savedUser.getUser_id,
       updateDto,
+      generateAccessToken(savedUser.getUser_id),
     );
     expect(response).toBeInstanceOf(BasicMessageDto);
 
@@ -169,7 +171,7 @@ describe('UserService Logic Test', () => {
     expect(updatedUser.getPassword).toBe(PASSWORD);
   });
 
-  it('Should update user info(Only password)', async () => {
+  it('updateUserInfo(): Should update user info(Only password)', async () => {
     const savedUser = await saveUser();
 
     const updateDto = new UserUpdateDto();
@@ -178,6 +180,7 @@ describe('UserService Logic Test', () => {
     const response = await userService.updateUserInfo(
       savedUser.getUser_id,
       updateDto,
+      generateAccessToken(savedUser.getUser_id),
     );
     expect(response).toBeInstanceOf(BasicMessageDto);
 
@@ -186,7 +189,42 @@ describe('UserService Logic Test', () => {
     expect(updatedUser.getPassword).toBe('NEW_PASSWORD');
   });
 
-  it('Should remove user', async () => {
+  it('updateUserInfo(): Should throw ForbiddenException if userId in token is not equal to path parameter', async () => {
+    expect.assertions(1);
+    const savedUser = await saveUser();
+    const updateDto = new UserUpdateDto();
+    updateDto.password = 'NEW_PASSWORD';
+    updateDto.name = 'NEW_NAME';
+
+    try {
+      await userService.updateUserInfo(
+        savedUser.getUser_id,
+        updateDto,
+        generateAccessToken(-1),
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(ForbiddenException);
+    }
+  });
+
+  it('updateUserInfo(): Should throw UnauthorizedException if token is wrong', async () => {
+    expect.assertions(1);
+    const savedUser = await saveUser();
+    const updateDto = new UserUpdateDto();
+    updateDto.password = 'NEW_PASSWORD';
+    updateDto.name = 'NEW_NAME';
+    try {
+      await userService.updateUserInfo(
+        savedUser.getUser_id,
+        updateDto,
+        WRONG_TOKEN,
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(UnauthorizedException);
+    }
+  });
+
+  it('removeUser(): Should remove user', async () => {
     const savedUser = await saveUser();
 
     const response = await userService.removeUser(savedUser.getUser_id);
@@ -196,7 +234,7 @@ describe('UserService Logic Test', () => {
     expect(user).toBeUndefined();
   });
 
-  it('Should login user', async () => {
+  it('removeUser(): Should login user', async () => {
     const savedUser = await saveUser();
 
     const requestDto = new UserLoginRequestDto();
@@ -211,7 +249,7 @@ describe('UserService Logic Test', () => {
     expect(extractUserId(response.accessToken)).toBe(savedUser.getUser_id);
   });
 
-  it('Should throw NotFoundException is login data is invalid', async () => {
+  it('login(): Should throw NotFoundException is login data is invalid', async () => {
     await saveUser();
     const requestDto = new UserLoginRequestDto();
     requestDto.email = 'wrong@email.com';

@@ -67,7 +67,11 @@ export class UserService {
   async updateUserInfo(
     userId: number,
     dto: UserUpdateDto,
+    token: string,
   ): Promise<BasicMessageDto> {
+    if (extractUserId(token) !== userId) {
+      throw new ForbiddenException('Not authorized to udpate this user info.');
+    }
     const result = await this.userRepository
       .createQueryBuilder()
       .select()
