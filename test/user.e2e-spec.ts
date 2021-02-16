@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import * as request from 'supertest';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidationPipe } from '@nestjs/common';
+import { generateAccessToken } from '../src/utils/auth/jwt-token-util';
 
 describe('UserController (e2e)', () => {
   let userService: UserService;
@@ -65,7 +66,9 @@ describe('UserController (e2e)', () => {
 
     const userId = (await userRepository.findOne()).getUser_id;
     expect(JSON.stringify(result.body)).toBe(
-      JSON.stringify(await userService.getUserInfo(userId)),
+      JSON.stringify(
+        await userService.getUserInfo(userId, generateAccessToken(userId)),
+      ),
     );
   });
 
@@ -77,7 +80,7 @@ describe('UserController (e2e)', () => {
     expect(result.status).toBe(HttpStatus.BAD_REQUEST);
   });
 
-  it('POST] /user: Response is BAD_REQUEST if name is missing', async () => {
+  it('[POST] /user: Response is BAD_REQUEST if name is missing', async () => {
     const dto = new UserCreateDto();
     dto.email = EMAIL;
     dto.password = PASSWORD;
@@ -85,7 +88,7 @@ describe('UserController (e2e)', () => {
     expect(result.status).toBe(HttpStatus.BAD_REQUEST);
   });
 
-  it('POST] /user: Response is BAD_REQUEST if password is missing', async () => {
+  it('[POST] /user: Response is BAD_REQUEST if password is missing', async () => {
     const dto = new UserCreateDto();
     dto.email = EMAIL;
     dto.name = NAME;
@@ -93,7 +96,7 @@ describe('UserController (e2e)', () => {
     expect(result.status).toBe(HttpStatus.BAD_REQUEST);
   });
 
-  it('POST] /user: Response is BAD_REQUEST if email is not type of email', async () => {
+  it('[POST] /user: Response is BAD_REQUEST if email is not type of email', async () => {
     const dto = new UserCreateDto();
     dto.email = 'NOT_FORM_OF_EMAIL';
     dto.name = NAME;
@@ -123,16 +126,39 @@ describe('UserController (e2e)', () => {
     savedUser.setName = NAME;
     savedUser.setPassword = PASSWORD;
     const userId = (await userRepository.save(savedUser)).getUser_id;
-
-    const result = await request(app.getHttpServer()).get(`/user/${userId}`);
+    const token = generateAccessToken(userId);
+    const result = await request(app.getHttpServer())
+      .get(`/user/${userId}`)
+      .set('authorization', `Bearer ${token}`);
     expect(result.status).toBe(HttpStatus.OK);
     expect(JSON.stringify(result.body)).toBe(
-      JSON.stringify(await userService.getUserInfo(userId)),
+      JSON.stringify(await userService.getUserInfo(userId, token)),
     );
   });
 
   it('[GET] /user/{userId} : Response is NOT_FOUND if userId does not exist', async () => {
-    const result = await request(app.getHttpServer()).get('/user/-1');
+    const token = generateAccessToken(-1);
+    const result = await request(app.getHttpServer())
+      .get('/user/-1')
+      .set('authorization', `Bearer ${token}`);
     expect(result.status).toBe(HttpStatus.NOT_FOUND);
+  });
+
+  it('[GET] /user/{userId} : Response is BAD_REQUEST if authorization header is missing', async () => {
+    const result = await request(app.getHttpServer()).get('/user/-1');
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST);
+  });
+
+  it('[GET] /user/{userId} : Response is FORBIDDEN if userId in token and userId in path parmaeter is different', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const token = generateAccessToken(-1);
+    const result = await request(app.getHttpServer())
+      .get(`/user/${userId}`)
+      .set('authorization', `Bearer ${token}`);
+    expect(result.status).toBe(HttpStatus.FORBIDDEN);
   });
 });
