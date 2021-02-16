@@ -29,6 +29,7 @@ export class UserController {
   @Get('/:userId')
   getUserInfo(
     @Param('userId', ParseIntPipe) userId: number,
+    @Attribute
   ): Promise<UserInfoResponseDto> {
     return this.userService.getUserInfo(userId);
   }
