@@ -21,11 +21,11 @@ export class UserModule implements NestModule {
       .apply(UserAuthMiddleware)
       .exclude(
         {
-          path: '/user',
+          path: 'user',
           method: RequestMethod.POST,
         },
         {
-          path: '/user/login',
+          path: 'user/login',
           method: RequestMethod.POST,
         },
       )

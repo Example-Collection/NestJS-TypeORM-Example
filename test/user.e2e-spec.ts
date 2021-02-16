@@ -10,7 +10,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidationPipe } from '@nestjs/common';
 import { generateAccessToken } from '../src/utils/auth/jwt-token-util';
 import { UserUpdateDto } from '../src/user/dtos/update-user.dto';
-import { generate } from 'rxjs';
 
 describe('UserController (e2e)', () => {
   let userService: UserService;
