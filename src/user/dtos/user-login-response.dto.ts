@@ -5,10 +5,11 @@ export class UserLoginResponseDto {
     this.user_id = user.getUser_id;
     this.name = user.getName;
     this.email = user.getEmail;
+    this.schema = 'Bearer';
   }
   user_id: number;
   name: string;
   email: string;
-  schema: 'Bearer';
+  schema: string;
   accessToken: string;
 }
