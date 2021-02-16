@@ -9,6 +9,8 @@ import * as request from 'supertest';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidationPipe } from '@nestjs/common';
 import { generateAccessToken } from '../src/utils/auth/jwt-token-util';
+import { UserUpdateDto } from '../src/user/dtos/update-user.dto';
+import { generate } from 'rxjs';
 
 describe('UserController (e2e)', () => {
   let userService: UserService;
@@ -17,6 +19,7 @@ describe('UserController (e2e)', () => {
   const NAME = 'NAME';
   const EMAIL = 'test@test.com';
   const PASSWORD = '12345asbcd';
+  const WRONG_TOKEN = 'asdfasdf';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -161,4 +164,88 @@ describe('UserController (e2e)', () => {
       .set('authorization', `Bearer ${token}`);
     expect(result.status).toBe(HttpStatus.FORBIDDEN);
   });
+
+  it('[GET] /user/{userId} : Response is UNAUTHOZIRED if token is malformed', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const result = await request(app.getHttpServer())
+      .get(`/user/${userId}`)
+      .set('authorization', `Bearer ${WRONG_TOKEN}`);
+    expect(result.status).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
+  it('[PATCH] /user/{userId} : Response is OK if all conditions are right', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    const userId = (await userRepository.save(savedUser)).getUser_id;
+
+    const token = generateAccessToken(userId);
+    const updateDto = new UserUpdateDto();
+    updateDto.name = 'NEW_NAME';
+    updateDto.password = 'NEW_PASSWORD';
+
+    const result = await request(app.getHttpServer())
+      .patch(`/user/${userId}`)
+      .set('authorization', `Bearer ${token}`)
+      .send(updateDto);
+
+    expect(result.status).toBe(HttpStatus.OK);
+    const updatedUser = await userRepository.findOne(userId);
+    expect(updatedUser.getName).toBe('NEW_NAME');
+    expect(updatedUser.getPassword).toBe('NEW_PASSWORD');
+  });
+
+  it('[PATCH] /user/{userId} : Response is UNAUTHOZIRED if token is malformed.', async () => {
+    const result = await request(app.getHttpServer())
+      .patch(`/user/-1`)
+      .set('authorization', `Bearer ${WRONG_TOKEN}`);
+    expect(result.status).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
+  it('[PATCH] /user/{userId} : Response is FORBIDDEN if userId in token and userId in path parameter is different', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    const userId = (await userRepository.save(savedUser)).getUser_id;
+
+    const token = generateAccessToken(-1);
+    const updateDto = new UserUpdateDto();
+    updateDto.name = 'NEW_NAME';
+    updateDto.password = 'NEW_PASSWORD';
+
+    const result = await request(app.getHttpServer())
+      .patch(`/user/${userId}`)
+      .set('authorization', `Bearer ${token}`)
+      .send(updateDto);
+    expect(result.status).toBe(HttpStatus.FORBIDDEN);
+
+    const updatedUser = await userRepository.findOne(userId);
+    expect(updatedUser.getName).toBe(NAME);
+    expect(updatedUser.getPassword).toBe(PASSWORD);
+  });
+
+  it('[PATCH] /user/{userId} : Response is BAD_REQUEST if authorization header is missing', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    const userId = (await userRepository.save(savedUser)).getUser_id;
+
+    const updateDto = new UserUpdateDto();
+    updateDto.name = 'NEW_NAME';
+    updateDto.password = 'NEW_PASSWORD';
+
+    const result = await request(app.getHttpServer())
+      .patch(`/user/${userId}`)
+      .send(updateDto);
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST);
+  });
+
+  // TODO : Add E2E test codes for UserService#removeUser();
 });
