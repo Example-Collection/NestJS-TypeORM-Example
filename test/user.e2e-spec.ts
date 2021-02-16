@@ -247,5 +247,53 @@ describe('UserController (e2e)', () => {
     expect(result.status).toBe(HttpStatus.BAD_REQUEST);
   });
 
-  // TODO : Add E2E test codes for UserService#removeUser();
+  it('[DELETE] /user/{userId} : Response is OK if all conditions are right', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const token = generateAccessToken(userId);
+    const result = await request(app.getHttpServer())
+      .delete(`/user/${userId}`)
+      .set('authorization', `Bearer ${token}`);
+    expect(result.status).toBe(HttpStatus.OK);
+
+    expect(await userRepository.findOne(userId)).toBeUndefined();
+  });
+
+  it('[DELETE] /user/{userId} : Response is BAD_REQUEST if authorization header is missing', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const result = await request(app.getHttpServer()).delete(`/user/${userId}`);
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST);
+  });
+
+  it('[DELETE] /user/{userId} : Response is FORBIDDEN if userId in token and userId in path parameter is different', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const token = generateAccessToken(-1);
+    const result = await request(app.getHttpServer())
+      .delete(`/user/${userId}`)
+      .set('authorization', `Bearer ${token}`);
+    expect(result.status).toBe(HttpStatus.FORBIDDEN);
+  });
+
+  it('[DELETE] /user/{userId} : Response is UNAUTHORIZED if token is malformed', async () => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const result = await request(app.getHttpServer())
+      .delete(`/user/${userId}`)
+      .set('authorization', `Bearer ${WRONG_TOKEN}`);
+    expect(result.status).toBe(HttpStatus.UNAUTHORIZED);
+  });
 });
