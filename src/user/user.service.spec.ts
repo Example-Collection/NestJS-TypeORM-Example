@@ -6,6 +6,9 @@ import { createMemoryDB } from '../utils/connections/create-memory-db';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { UserUpdateDto } from './dtos/update-user.dto';
 import { BasicMessageDto } from '../common/dtos/basic-message.dto';
+import { UserLoginResponseDto } from './dtos/user-login-response.dto';
+import { UserLoginRequestDto } from './dtos/user-login-request.dto';
+import { extractUserId } from '../utils/auth/jwt-token-util';
 
 describe('UserService Logic Test', () => {
   let userService: UserService;
@@ -157,5 +160,21 @@ describe('UserService Logic Test', () => {
 
     const user = await userRepository.findOne(savedUser.getUser_id);
     expect(user).toBeUndefined();
+  });
+
+  it('Should login user', async () => {
+    const savedUser = await saveUser();
+
+    const requestDto = new UserLoginRequestDto();
+    requestDto.email = EMAIL;
+    requestDto.password = PASSWORD;
+
+    const response = await userService.login(requestDto);
+    expect(response.email).toBe(EMAIL);
+    expect(response.name).toBe(NAME);
+    expect(response.user_id).toBe(savedUser.getUser_id);
+    expect(extractUserId(response.accessToken).valueOf(user_id)).toBe(
+      savedUser.getUser_id,
+    );
   });
 });

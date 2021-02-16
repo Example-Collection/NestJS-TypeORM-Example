@@ -11,5 +11,5 @@ export function generateAccessToken(userId: number): string {
 }
 
 export function extractUserId(token: string) {
-  return jwt.verify(token, process.env.JWT_SERCET_KEY);
+  return jwt.verify(token, `${process.env.JWT_SERCET_KEY}`);
 }

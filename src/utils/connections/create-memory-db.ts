@@ -8,7 +8,7 @@ export async function createMemoryDB(entities: Entity[]) {
     type: 'sqlite',
     database: ':memory:',
     entities,
-    logging: true,
+    logging: false,
     synchronize: true,
   });
 }
