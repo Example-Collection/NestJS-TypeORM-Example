@@ -83,7 +83,10 @@ export class UserService {
     } else throw new NotFoundException();
   }
 
-  async removeUser(userId: number): Promise<BasicMessageDto> {
+  async removeUser(userId: number, token: string): Promise<BasicMessageDto> {
+    if (extractUserId(token) !== userId) {
+      throw new ForbiddenException('Not authorized to delete this user.');
+    }
     const result = await this.userRepository.delete(userId);
     if (result.affected !== 0) {
       return new BasicMessageDto('Deleted Successfully.');

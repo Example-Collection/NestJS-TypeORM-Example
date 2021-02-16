@@ -40,13 +40,17 @@ export class UserController {
   updateUserInfo(
     @Param('userId', ParseIntPipe) userId: number,
     @Body() dto: UserUpdateDto,
+    @Req() req: IUserRequest,
   ): Promise<BasicMessageDto> {
-    return this.userService.updateUserInfo(userId, dto);
+    return this.userService.updateUserInfo(userId, dto, req.accessToken);
   }
 
   @Delete('/:userId')
-  removeUser(@Param('userId', ParseIntPipe) userId: number) {
-    return this.userService.removeUser(userId);
+  removeUser(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Req() req: IUserRequest,
+  ) {
+    return this.userService.removeUser(userId, req.accessToken);
   }
 
   @Post('/login')

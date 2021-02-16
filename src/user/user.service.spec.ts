@@ -227,14 +227,40 @@ describe('UserService Logic Test', () => {
   it('removeUser(): Should remove user', async () => {
     const savedUser = await saveUser();
 
-    const response = await userService.removeUser(savedUser.getUser_id);
+    const response = await userService.removeUser(
+      savedUser.getUser_id,
+      generateAccessToken(savedUser.getUser_id),
+    );
     expect(response).toBeInstanceOf(BasicMessageDto);
 
     const user = await userRepository.findOne(savedUser.getUser_id);
     expect(user).toBeUndefined();
   });
 
-  it('removeUser(): Should login user', async () => {
+  it('removeUser(): Should throw ForbiddenException is userId in token and userId in path parameter is different', async () => {
+    expect.assertions(1);
+    const savedUser = await saveUser();
+    try {
+      await userService.removeUser(
+        savedUser.getUser_id,
+        generateAccessToken(-1),
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(ForbiddenException);
+    }
+  });
+
+  it('removeUser(): Should throw UnauthoziredException if token is wrong', async () => {
+    expect.assertions(1);
+    const savedUser = await saveUser();
+    try {
+      await userService.removeUser(savedUser.getUser_id, WRONG_TOKEN);
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(UnauthorizedException);
+    }
+  });
+
+  it('login(): Should login user', async () => {
     const savedUser = await saveUser();
 
     const requestDto = new UserLoginRequestDto();
