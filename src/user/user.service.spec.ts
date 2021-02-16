@@ -9,6 +9,7 @@ import { BasicMessageDto } from '../common/dtos/basic-message.dto';
 import { UserLoginResponseDto } from './dtos/user-login-response.dto';
 import { UserLoginRequestDto } from './dtos/user-login-request.dto';
 import { extractUserId } from '../utils/auth/jwt-token-util';
+import { request } from 'express';
 
 describe('UserService Logic Test', () => {
   let userService: UserService;
@@ -175,5 +176,19 @@ describe('UserService Logic Test', () => {
     expect(response.user_id).toBe(savedUser.getUser_id);
     extractUserId(response.accessToken);
     expect(extractUserId(response.accessToken)).toBe(savedUser.getUser_id);
+  });
+
+  it('Should throw NotFoundException is login data is invalid', async () => {
+    await saveUser();
+    const requestDto = new UserLoginRequestDto();
+    requestDto.email = 'wrong@email.com';
+    requestDto.password = PASSWORD;
+
+    expect.assertions(1);
+    try {
+      await userService.login(requestDto);
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(NotFoundException);
+    }
   });
 });
