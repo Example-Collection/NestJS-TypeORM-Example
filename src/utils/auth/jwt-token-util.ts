@@ -11,21 +11,27 @@ export function generateAccessToken(userId: number): string {
   );
 }
 
-export function checkExpDate(token: string): void {
-  const decodedToken = jwt.verify(token, `${process.env.JWT_SERCET_KEY}`) as {
-    exp: number;
-  };
-  if (decodedToken.exp < Math.floor(Date.now() / 1000) + 86400000) {
-    throw new UnauthorizedException(
-      'JWT Token is malformed, or it is expired.',
-    );
+function checkExpDate(exp: number): void {
+  try {
+    if (exp * 1000 < Date.now() + 86400000) {
+      throw new UnauthorizedException(
+        'JWT Token is malformed, or it is expired.',
+      );
+    }
+  } catch (exception) {
+    throw new UnauthorizedException('JWT Token is malformed.');
   }
 }
 
 export function extractUserId(token: string): number {
-  checkExpDate(token);
-  const decodedToken = jwt.verify(token, `${process.env.JWT_SERCET_KEY}`) as {
-    userId: number;
-  };
-  return decodedToken.userId;
+  try {
+    const decodedToken = jwt.verify(token, `${process.env.JWT_SERCET_KEY}`) as {
+      userId: number;
+      exp: number;
+    };
+    checkExpDate(decodedToken.exp);
+    return decodedToken.userId;
+  } catch (exception) {
+    throw new UnauthorizedException('JWT Token is malformed.');
+  }
 }

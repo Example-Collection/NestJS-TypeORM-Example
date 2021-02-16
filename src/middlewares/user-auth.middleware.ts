@@ -2,13 +2,10 @@ import {
   UnauthorizedException,
   Injectable,
   NestMiddleware,
+  BadRequestException,
 } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { checkExpDate } from '../utils/auth/jwt-token-util';
-
-interface IUserRequest extends Request {
-  accessToken: string;
-}
+import { Response, NextFunction } from 'express';
+import IUserRequest from '../interfaces/user-request';
 @Injectable()
 export class UserAuthMiddleware implements NestMiddleware {
   private checkSchemaAndReturnToken(header: string): string {
@@ -22,9 +19,11 @@ export class UserAuthMiddleware implements NestMiddleware {
     }
   }
   use(req: IUserRequest, res: Response, next: NextFunction) {
-    const token = this.checkSchemaAndReturnToken(req.header('Authorization'));
-    checkExpDate(token);
-    req.accessToken = token;
-    next();
+    const authorizationHeader = req.headers['authorization'];
+    if (!!authorizationHeader) {
+      const token = this.checkSchemaAndReturnToken(authorizationHeader);
+      req.accessToken = token;
+      next();
+    } else throw new BadRequestException('Authorization Header is missing.');
   }
 }

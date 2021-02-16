@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,7 +12,10 @@ import { BasicMessageDto } from '../common/dtos/basic-message.dto';
 import { UserRepository } from '../entities/user.repository';
 import { UserLoginRequestDto } from './dtos/user-login-request.dto';
 import { UserLoginResponseDto } from './dtos/user-login-response.dto';
-import { generateAccessToken } from '../utils/auth/jwt-token-util';
+import {
+  extractUserId,
+  generateAccessToken,
+} from '../utils/auth/jwt-token-util';
 
 @Injectable()
 export class UserService {
@@ -47,7 +51,13 @@ export class UserService {
     }
   }
 
-  async getUserInfo(userId: number): Promise<UserInfoResponseDto> {
+  async getUserInfo(
+    userId: number,
+    token: string,
+  ): Promise<UserInfoResponseDto> {
+    if (extractUserId(token) !== userId) {
+      throw new ForbiddenException('Not authorized to get this user info.');
+    }
     const user = await this.userRepository.findOne(userId);
     if (!!user) {
       return new UserInfoResponseDto(user);
