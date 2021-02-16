@@ -11,7 +11,7 @@ export function generateAccessToken(userId: number): string {
   );
 }
 
-function checkExpDate(token: string): void {
+export function checkExpDate(token: string): void {
   const decodedToken = jwt.verify(token, `${process.env.JWT_SERCET_KEY}`) as {
     exp: number;
   };
