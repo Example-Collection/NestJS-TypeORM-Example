@@ -16,6 +16,7 @@ import {
   extractUserId,
   generateAccessToken,
 } from '../utils/auth/jwt-token-util';
+import { Board } from '../entities/board/board.entity';
 
 describe('UserService Logic Test', () => {
   let userService: UserService;
@@ -36,7 +37,7 @@ describe('UserService Logic Test', () => {
   };
 
   beforeAll(async () => {
-    connection = await createMemoryDB([User]);
+    connection = await createMemoryDB([User, Board]);
     userRepository = await connection.getRepository(User);
     userService = new UserService(userRepository);
   });
