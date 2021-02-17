@@ -14,9 +14,7 @@ export function generateAccessToken(userId: number): string {
 function checkExpDate(exp: number): void {
   try {
     if (exp * 1000 < Date.now() + 86400000) {
-      throw new UnauthorizedException(
-        'JWT Token is malformed, or it is expired.',
-      );
+      throw new UnauthorizedException('JWT Token has been expired.');
     }
   } catch (exception) {
     throw new UnauthorizedException('JWT Token is malformed.');
