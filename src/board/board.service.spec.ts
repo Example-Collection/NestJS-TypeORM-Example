@@ -65,13 +65,15 @@ describe('BoardService Logic test', () => {
     expect(result.userId).toBe(savedUser.getUser_id);
     expect(result.name).toBe(savedUser.getName);
 
-    const savedBoard = await boardRepository.findOne(result.boardId);
+    const savedBoard = await boardRepository.findOne(result.boardId, {
+      relations: ['user'],
+    });
     expect(savedBoard.getBoard_id).toBe(result.boardId);
     expect(savedBoard.getContent).toBe(CONTENT);
     expect(savedBoard.getTitle).toBe(TITLE);
     expect(new Date() > savedBoard.getCreatedAt);
     expect(new Date() > savedBoard.getLastModifiedAt);
-    // ASSERTION ERROR BELOW CODE(Maybe relation mapping is wrong.)
     expect(savedBoard.user.getUser_id).toBe(savedUser.getUser_id);
+    console.log(savedBoard);
   });
 });
