@@ -5,11 +5,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserCreateDto } from '../user/dtos/create-user.dto';
-import { User } from '../entities/user.entity';
+import { User } from '../entities/user/user.entity';
 import { UserInfoResponseDto } from './dtos/user-info.dto';
 import { UserUpdateDto } from './dtos/update-user.dto';
 import { BasicMessageDto } from '../common/dtos/basic-message.dto';
-import { UserRepository } from '../entities/user.repository';
+import { UserRepository } from '../entities/user/user.repository';
 import { UserLoginRequestDto } from './dtos/user-login-request.dto';
 import { UserLoginResponseDto } from './dtos/user-login-response.dto';
 import {

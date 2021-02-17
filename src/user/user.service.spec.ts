@@ -1,7 +1,7 @@
 import { UserCreateDto } from './dtos/create-user.dto';
 import { UserService } from './user.service';
 import { Connection, Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
+import { User } from '../entities/user/user.entity';
 import { createMemoryDB } from '../utils/connections/create-memory-db';
 import {
   ConflictException,

@@ -1,6 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { User } from '../src/entities/user.entity';
+import { User } from '../src/entities/user/user.entity';
 import { UserCreateDto } from '../src/user/dtos/create-user.dto';
 import { UserModule } from '../src/user/user.module';
 import { UserService } from '../src/user/user.service';
