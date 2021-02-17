@@ -1,4 +1,11 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Board } from '../board/board.entity';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -13,6 +20,9 @@ export class User extends BaseEntity {
 
   @Column({ nullable: false })
   private password: string;
+
+  @OneToMany((type) => Board, (board) => board.user)
+  boards: Board[];
 
   get getUser_id(): number {
     return this.user_id;

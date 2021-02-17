@@ -3,9 +3,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { User } from '../user/user.entity';
 
 @Entity({ name: 'boards' })
 export class Board extends BaseEntity {
@@ -24,8 +26,8 @@ export class Board extends BaseEntity {
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   private last_modified_at: Date;
 
-  @Column({ nullable: false })
-  private user_id: number;
+  @ManyToOne((type) => User, (user) => user.boards)
+  user: User;
 
   get getBoard_id(): number {
     return this.board_id;
@@ -47,19 +49,11 @@ export class Board extends BaseEntity {
     return this.last_modified_at;
   }
 
-  get getUser_id(): number {
-    return this.user_id;
-  }
-
   set setTitle(title: string) {
     this.title = title;
   }
 
   set setContent(content: string) {
     this.content = content;
-  }
-
-  set setUser_id(user_id: number) {
-    this.user_id = user_id;
   }
 }
