@@ -6,6 +6,12 @@ import { User } from '../entities/user/user.entity';
 import { BoardCreateDto } from './dtos/create-board-dto';
 import { generateAccessToken } from '../utils/auth/jwt-token-util';
 import { BoardInfoResponseDto } from './dtos/board-info.dto';
+import {
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { request } from 'express';
 
 describe('BoardService Logic test', () => {
   let boardService: BoardService;
@@ -28,6 +34,13 @@ describe('BoardService Logic test', () => {
     return await userRepository.save(savedUser);
   };
 
+  const getBoardCreateDto = (): BoardCreateDto => {
+    const dto = new BoardCreateDto();
+    dto.content = CONTENT;
+    dto.title = TITLE;
+    return dto;
+  };
+
   beforeAll(async () => {
     connection = await createMemoryDB([User, Board]);
     userRepository = await connection.getRepository(User);
@@ -41,17 +54,16 @@ describe('BoardService Logic test', () => {
 
   afterEach(async () => {
     await boardRepository.query('DELETE FROM boards');
+    await userRepository.query('DELETE FROM users');
   });
 
   it('should be defined', () => {
     expect(boardService).toBeDefined();
   });
 
-  it('Should save board', async () => {
+  it('saveBoard(): Should save board', async () => {
     const savedUser = await saveUser();
-    const requestDto = new BoardCreateDto();
-    requestDto.content = CONTENT;
-    requestDto.title = TITLE;
+    const requestDto = getBoardCreateDto();
     const result = await boardService.saveBoard(
       requestDto,
       generateAccessToken(savedUser.getUser_id),
@@ -74,6 +86,45 @@ describe('BoardService Logic test', () => {
     expect(new Date() > savedBoard.getCreatedAt);
     expect(new Date() > savedBoard.getLastModifiedAt);
     expect(savedBoard.user.getUser_id).toBe(savedUser.getUser_id);
-    console.log(savedBoard);
+  });
+
+  it('saveBoard(): Should throw NotFoundException if userId is invalid', async () => {
+    const requestDto = getBoardCreateDto();
+    expect.assertions(1);
+    try {
+      await boardService.saveBoard(requestDto, generateAccessToken(-1), -1);
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(NotFoundException);
+    }
+  });
+
+  it('saveBoard(): Should throw UnauthorizedException if token is wrong', async () => {
+    const savedUser = await saveUser();
+    expect.assertions(1);
+    const requestDto = getBoardCreateDto();
+    try {
+      await boardService.saveBoard(
+        requestDto,
+        WRONG_TOKEN,
+        savedUser.getUser_id,
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(UnauthorizedException);
+    }
+  });
+
+  it('saveBoard(): Should throw ForbiddenException if userId in token and userId in path parameter is different.', async () => {
+    const savedUser = await saveUser();
+    expect.assertions(1);
+    const requestDto = getBoardCreateDto();
+    try {
+      await boardService.saveBoard(
+        requestDto,
+        generateAccessToken(-1),
+        savedUser.getUser_id,
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(ForbiddenException);
+    }
   });
 });
