@@ -11,9 +11,11 @@ import { ValidationPipe } from '@nestjs/common';
 import { generateAccessToken } from '../src/utils/auth/jwt-token-util';
 import { UserUpdateDto } from '../src/user/dtos/update-user.dto';
 import { Board } from '../src/entities/board/board.entity';
+import { BoardService } from '../src/board/board.service';
 
 describe('UserController (e2e)', () => {
   let userService: UserService;
+  let boardService: BoardService;
   let userRepository: Repository<User>;
   let boardRepository: Repository<Board>;
   let app: INestApplication;
@@ -21,6 +23,16 @@ describe('UserController (e2e)', () => {
   const EMAIL = 'test@test.com';
   const PASSWORD = '12345asbcd';
   const WRONG_TOKEN = 'asdfasdf';
+  const TITLE = 'THIS IS TITLE';
+  const CONTENT = 'THIS IS CONTENT';
+
+  const saveUser = async (): Promise<User> => {
+    const savedUser = new User();
+    savedUser.setEmail = EMAIL;
+    savedUser.setName = NAME;
+    savedUser.setPassword = PASSWORD;
+    return await userRepository.save(savedUser);
+  };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -48,6 +60,7 @@ describe('UserController (e2e)', () => {
     userRepository = moduleFixture.get('UserRepository');
     boardRepository = moduleFixture.get('BoardRepository');
     userService = new UserService(userRepository);
+    boardService = new BoardService(boardRepository, userRepository);
   });
 
   afterAll(async () => {
@@ -111,12 +124,7 @@ describe('UserController (e2e)', () => {
   });
 
   it('[POST] /user: Response is CONFLICT if email already exists.', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
-    savedUser.setPassword = PASSWORD;
-    await userRepository.save(savedUser);
-
+    await saveUser();
     const dto = new UserCreateDto();
     dto.email = EMAIL;
     dto.name = NAME;
@@ -126,11 +134,8 @@ describe('UserController (e2e)', () => {
   });
 
   it('[GET] /user/{userId} : Response is OK if userId exists.', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
-    savedUser.setPassword = PASSWORD;
-    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const savedUser = await saveUser();
+    const userId = savedUser.getUser_id;
     const token = generateAccessToken(userId);
     const result = await request(app.getHttpServer())
       .get(`/user/${userId}`)
@@ -155,11 +160,8 @@ describe('UserController (e2e)', () => {
   });
 
   it('[GET] /user/{userId} : Response is FORBIDDEN if userId in token and userId in path parmaeter is different', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
-    savedUser.setPassword = PASSWORD;
-    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const savedUser = await saveUser();
+    const userId = savedUser.getUser_id;
     const token = generateAccessToken(-1);
     const result = await request(app.getHttpServer())
       .get(`/user/${userId}`)
@@ -168,11 +170,9 @@ describe('UserController (e2e)', () => {
   });
 
   it('[GET] /user/{userId} : Response is UNAUTHOZIRED if token is malformed', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
+    const savedUser = await saveUser();
     savedUser.setPassword = PASSWORD;
-    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const userId = savedUser.getUser_id;
     const result = await request(app.getHttpServer())
       .get(`/user/${userId}`)
       .set('authorization', `Bearer ${WRONG_TOKEN}`);
@@ -180,11 +180,8 @@ describe('UserController (e2e)', () => {
   });
 
   it('[PATCH] /user/{userId} : Response is OK if all conditions are right', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
-    savedUser.setPassword = PASSWORD;
-    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const savedUser = await saveUser();
+    const userId = savedUser.getUser_id;
 
     const token = generateAccessToken(userId);
     const updateDto = new UserUpdateDto();
@@ -210,11 +207,8 @@ describe('UserController (e2e)', () => {
   });
 
   it('[PATCH] /user/{userId} : Response is FORBIDDEN if userId in token and userId in path parameter is different', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
-    savedUser.setPassword = PASSWORD;
-    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const savedUser = await saveUser();
+    const userId = savedUser.getUser_id;
 
     const token = generateAccessToken(-1);
     const updateDto = new UserUpdateDto();
@@ -233,11 +227,8 @@ describe('UserController (e2e)', () => {
   });
 
   it('[PATCH] /user/{userId} : Response is BAD_REQUEST if authorization header is missing', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
-    savedUser.setPassword = PASSWORD;
-    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const savedUser = await saveUser();
+    const userId = savedUser.getUser_id;
 
     const updateDto = new UserUpdateDto();
     updateDto.name = 'NEW_NAME';
@@ -250,11 +241,8 @@ describe('UserController (e2e)', () => {
   });
 
   it('[DELETE] /user/{userId} : Response is OK if all conditions are right', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
-    savedUser.setPassword = PASSWORD;
-    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const savedUser = await saveUser();
+    const userId = savedUser.getUser_id;
     const token = generateAccessToken(userId);
     const result = await request(app.getHttpServer())
       .delete(`/user/${userId}`)
@@ -265,21 +253,15 @@ describe('UserController (e2e)', () => {
   });
 
   it('[DELETE] /user/{userId} : Response is BAD_REQUEST if authorization header is missing', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
-    savedUser.setPassword = PASSWORD;
-    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const savedUser = await saveUser();
+    const userId = savedUser.getUser_id;
     const result = await request(app.getHttpServer()).delete(`/user/${userId}`);
     expect(result.status).toBe(HttpStatus.BAD_REQUEST);
   });
 
   it('[DELETE] /user/{userId} : Response is FORBIDDEN if userId in token and userId in path parameter is different', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
-    savedUser.setPassword = PASSWORD;
-    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const savedUser = await saveUser();
+    const userId = savedUser.getUser_id;
     const token = generateAccessToken(-1);
     const result = await request(app.getHttpServer())
       .delete(`/user/${userId}`)
@@ -288,11 +270,8 @@ describe('UserController (e2e)', () => {
   });
 
   it('[DELETE] /user/{userId} : Response is UNAUTHORIZED if token is malformed', async () => {
-    const savedUser = new User();
-    savedUser.setEmail = EMAIL;
-    savedUser.setName = NAME;
-    savedUser.setPassword = PASSWORD;
-    const userId = (await userRepository.save(savedUser)).getUser_id;
+    const savedUser = await saveUser();
+    const userId = savedUser.getUser_id;
     const result = await request(app.getHttpServer())
       .delete(`/user/${userId}`)
       .set('authorization', `Bearer ${WRONG_TOKEN}`);
