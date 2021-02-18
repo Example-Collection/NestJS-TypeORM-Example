@@ -76,7 +76,7 @@ describe('UserController (e2e)', () => {
       imports: [
         UserModule,
         TypeOrmModule.forRoot({
-          type: 'sqlite',
+          type: 'better-sqlite3',
           database: ':memory:',
           entities: [User, Board],
           logging: false,
