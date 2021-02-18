@@ -102,4 +102,14 @@ export class BoardService {
         );
     } else throw new NotFoundException('userId is invalid.');
   }
+
+  async getByBoardId(boardId: number): Promise<BoardInfoResponseDto> {
+    const board = await this.boardRepository.findOne(boardId, {
+      relations: ['user'],
+    });
+    if (!!board) {
+      const writer = board.user;
+      return new BoardInfoResponseDto(writer, board);
+    } else throw new NotFoundException('boardId is invalid.');
+  }
 }
