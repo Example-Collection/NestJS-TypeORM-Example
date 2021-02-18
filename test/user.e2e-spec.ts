@@ -10,10 +10,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidationPipe } from '@nestjs/common';
 import { generateAccessToken } from '../src/utils/auth/jwt-token-util';
 import { UserUpdateDto } from '../src/user/dtos/update-user.dto';
+import { Board } from '../src/entities/board/board.entity';
+import { BoardModule } from '../src/board/board.module';
+import { BoardService } from '../src/board/board.service';
 
 describe('UserController (e2e)', () => {
   let userService: UserService;
+  let boardService: BoardService;
   let userRepository: Repository<User>;
+  let boardRepository: Repository<Board>;
   let app: INestApplication;
   const NAME = 'NAME';
   const EMAIL = 'test@test.com';
@@ -24,11 +29,11 @@ describe('UserController (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         UserModule,
-
+        BoardModule,
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: [User],
+          entities: [User, Board],
           logging: false,
           synchronize: true,
         }),
@@ -45,7 +50,9 @@ describe('UserController (e2e)', () => {
     );
     await app.init();
     userRepository = moduleFixture.get('UserRepository');
+    boardRepository = moduleFixture.get('BoardRepository');
     userService = new UserService(userRepository);
+    boardService = new BoardService(boardRepository, userRepository);
   });
 
   afterAll(async () => {
@@ -53,6 +60,7 @@ describe('UserController (e2e)', () => {
   });
 
   afterEach(async () => {
+    await boardRepository.query('DELETE FROM boards');
     await userRepository.query('DELETE FROM users');
   });
 
