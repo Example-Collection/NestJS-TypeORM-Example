@@ -12,6 +12,8 @@ import { generateAccessToken } from '../src/utils/auth/jwt-token-util';
 import { UserUpdateDto } from '../src/user/dtos/update-user.dto';
 import { Board } from '../src/entities/board/board.entity';
 import { BoardService } from '../src/board/board.service';
+import { BoardCreateDto } from '../src/board/dtos/create-board-dto';
+import { BoardInfoResponseDto } from '../src/board/dtos/board-info.dto';
 
 describe('UserController (e2e)', () => {
   let userService: UserService;
@@ -276,5 +278,31 @@ describe('UserController (e2e)', () => {
       .delete(`/user/${userId}`)
       .set('authorization', `Bearer ${WRONG_TOKEN}`);
     expect(result.status).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
+  it('[POST] /user/board/{userId} : Response is OK if all conditions are right', async () => {
+    const dto = new BoardCreateDto();
+    dto.content = CONTENT;
+    dto.title = TITLE;
+    const savedUser = await saveUser();
+    const userId = savedUser.getUser_id;
+    const token = generateAccessToken(userId);
+    const result = await request(app.getHttpServer())
+      .post(`/user/board/${userId}`)
+      .set('authorization', `Bearer ${token}`)
+      .send(dto);
+    expect(result.status).toBe(HttpStatus.CREATED);
+    const response = result.body as BoardInfoResponseDto;
+    expect(typeof response.boardId).toBe('number');
+    expect(response.title).toBe(TITLE);
+    expect(response.content).toBe(CONTENT);
+    expect(
+      Date.now() > new Date(response.createdAt).getMilliseconds(),
+    ).toBeTruthy();
+    expect(
+      Date.now() > new Date(response.lastModifiedAt).getMilliseconds(),
+    ).toBeTruthy();
+    expect(response.userId).toBe(userId);
+    expect(response.name).toBe(NAME);
   });
 });

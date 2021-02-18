@@ -71,8 +71,14 @@ describe('BoardService Logic test', () => {
     expect(result).toBeInstanceOf(BoardInfoResponseDto);
     expect(result.content).toBe(CONTENT);
     expect(result.title).toBe(TITLE);
-    expect(new Date() > result.createdAt).toBeTruthy();
-    expect(new Date() > result.lastModifiedAt).toBeTruthy();
+    // expect(new Date() > result.createdAt).toBeTruthy();
+    // expect(new Date() > result.lastModifiedAt).toBeTruthy();
+    expect(
+      Date.now() > new Date(result.createdAt).getMilliseconds(),
+    ).toBeTruthy();
+    expect(
+      Date.now() > new Date(result.lastModifiedAt).getMilliseconds(),
+    ).toBeTruthy();
     expect(result.userId).toBe(savedUser.getUser_id);
     expect(result.name).toBe(savedUser.getName);
 
@@ -82,8 +88,12 @@ describe('BoardService Logic test', () => {
     expect(savedBoard.getBoard_id).toBe(result.boardId);
     expect(savedBoard.getContent).toBe(CONTENT);
     expect(savedBoard.getTitle).toBe(TITLE);
-    expect(new Date() > savedBoard.getCreatedAt);
-    expect(new Date() > savedBoard.getLastModifiedAt);
+    expect(
+      Date.now() > new Date(savedBoard.getCreatedAt).getMilliseconds(),
+    ).toBeTruthy();
+    expect(
+      Date.now() > new Date(savedBoard.getLastModifiedAt).getMilliseconds(),
+    ).toBeTruthy();
     expect(savedBoard.user.getUser_id).toBe(savedUser.getUser_id);
   });
 
