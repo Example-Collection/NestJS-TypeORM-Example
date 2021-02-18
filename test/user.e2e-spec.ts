@@ -11,7 +11,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { generateAccessToken } from '../src/utils/auth/jwt-token-util';
 import { UserUpdateDto } from '../src/user/dtos/update-user.dto';
 import { Board } from '../src/entities/board/board.entity';
-import { BoardModule } from '../src/board/board.module';
 import { BoardService } from '../src/board/board.service';
 
 describe('UserController (e2e)', () => {
@@ -29,7 +28,6 @@ describe('UserController (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         UserModule,
-        BoardModule,
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
