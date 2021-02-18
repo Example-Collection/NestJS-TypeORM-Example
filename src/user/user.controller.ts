@@ -18,10 +18,16 @@ import { BasicMessageDto } from '../common/dtos/basic-message.dto';
 import { UserLoginRequestDto } from './dtos/user-login-request.dto';
 import { UserLoginResponseDto } from './dtos/user-login-response.dto';
 import IUserRequest from '../interfaces/user-request';
+import { BoardCreateDto } from '../board/dtos/create-board-dto';
+import { BoardInfoResponseDto } from '../board/dtos/board-info.dto';
+import { BoardService } from '../board/board.service';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly boardSerive: BoardService,
+  ) {}
 
   @Post()
   saveUser(@Body() dto: UserCreateDto): Promise<UserInfoResponseDto> {
@@ -56,5 +62,14 @@ export class UserController {
   @Post('/login')
   login(@Body() dto: UserLoginRequestDto): Promise<UserLoginResponseDto> {
     return this.userService.login(dto);
+  }
+
+  @Post('/board/:userId')
+  saveBoard(
+    @Body() dto: BoardCreateDto,
+    @Req() req: IUserRequest,
+    @Param('userId') userId: number,
+  ): Promise<BoardInfoResponseDto> {
+    return this.boardSerive.saveBoard(dto, req.accessToken, userId);
   }
 }
