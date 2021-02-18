@@ -277,6 +277,17 @@ describe('UserController (e2e)', () => {
     expect(result.status).toBe(HttpStatus.BAD_REQUEST);
   });
 
+  it('[PUT] /user{userId} : Response is NOT_FOUND if userId is invalid', async () => {
+    const updateDto = new UserUpdateDto();
+    updateDto.name = 'NEW_NAME';
+    updateDto.password = 'NEW_PASSWORD';
+    const result = await request(app.getHttpServer())
+      .put(`/user/-1`)
+      .set('authorization', `Bearer ${generateAccessToken(-1)}`)
+      .send(updateDto);
+    expect(result.status).toBe(HttpStatus.NOT_FOUND);
+  });
+
   it('[DELETE] /user/{userId} : Response is OK if all conditions are right', async () => {
     const savedUser = await saveUser();
     const userId = savedUser.getUser_id;
@@ -313,6 +324,13 @@ describe('UserController (e2e)', () => {
       .delete(`/user/${userId}`)
       .set('authorization', `Bearer ${WRONG_TOKEN}`);
     expect(result.status).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
+  it('[DELETE] /user/{userId} : Response is NOT_FOUND if userId is invalid', async () => {
+    const result = await request(app.getHttpServer())
+      .delete(`/user/-1`)
+      .set('authorization', `Bearer ${generateAccessToken(-1)}`);
+    expect(result.status).toBe(HttpStatus.NOT_FOUND);
   });
 
   it('[POST] /user/board/{userId} : Response is OK if all conditions are right', async () => {
