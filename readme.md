@@ -37,8 +37,8 @@
 - [x] 회원 정보 수정 : `[PUT] /user/{userId}`
 - [x] 회원 정보 조회 : `[GET] /user/{userId}`
 - [x] 회원 정보 삭제 : `[DELETE] /user/{userId}`
-- [ ] 글 등록 : `[POST] /user/board/{userId}`
-- [ ] 글 수정 : `[PATCH] /user/board/{userId}/{boardId}`
+- [x] 글 등록 : `[POST] /user/board/{userId}`
+- [x] 글 수정 : `[PATCH] /user/board/{userId}/{boardId}`
 - [ ] 글 삭제 : `[DELETE] /user/board/{userId}/{boardId}`
 - [ ] 특정 글 조회 : `[GET] /board/{boardId}`
 - [ ] 글 조회 : `[GET] /board?page=number&size=number`
