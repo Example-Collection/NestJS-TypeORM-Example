@@ -21,6 +21,7 @@ import IUserRequest from '../interfaces/user-request';
 import { BoardCreateDto } from '../board/dtos/create-board-dto';
 import { BoardInfoResponseDto } from '../board/dtos/board-info.dto';
 import { BoardService } from '../board/board.service';
+import { BoardUpdateDto } from 'src/board/dtos/update-board.dto';
 
 @Controller('user')
 export class UserController {
@@ -71,5 +72,15 @@ export class UserController {
     @Param('userId') userId: number,
   ): Promise<BoardInfoResponseDto> {
     return this.boardSerive.saveBoard(dto, req.accessToken, userId);
+  }
+
+  @Patch('/board/:userId/:boardId')
+  updateBoard(
+    @Body() dto: BoardUpdateDto,
+    @Req() req: IUserRequest,
+    @Param('userId') userId: number,
+    @Param('boardId') boardId: number,
+  ): Promise<BasicMessageDto> {
+    return this.boardSerive.updateBoard(dto, req.accessToken, userId, boardId);
   }
 }
