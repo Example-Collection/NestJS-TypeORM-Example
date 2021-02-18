@@ -73,4 +73,20 @@ export class BoardService {
         );
     } else throw new NotFoundException('userId is invalid.');
   }
+
+  async removeBoard(
+    token: string,
+    userId: number,
+    boardId: number,
+  ): Promise<BasicMessageDto> {
+    if (userId !== extractUserId(token)) {
+      throw new ForbiddenException(
+        'userId in parameter and token is different',
+      );
+    }
+    const result = await this.boardRepository.delete(boardId);
+    if (result.affected !== 0) {
+      return new BasicMessageDto('Deleted Successfully.');
+    } else throw new NotFoundException();
+  }
 }

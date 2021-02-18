@@ -84,4 +84,13 @@ export class UserController {
   ): Promise<BasicMessageDto> {
     return this.boardSerive.updateBoard(dto, req.accessToken, userId, boardId);
   }
+
+  @Delete('/board/:userId/:boardId')
+  removeBoard(
+    @Req() req: IUserRequest,
+    @Param('userId') userId: number,
+    @Param('boardId') boardId: number,
+  ): Promise<BasicMessageDto> {
+    return this.boardSerive.removeBoard(req.accessToken, userId, boardId);
+  }
 }

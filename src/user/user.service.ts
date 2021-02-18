@@ -63,7 +63,7 @@ export class UserService {
       return new UserInfoResponseDto(user);
     } else throw new NotFoundException();
   }
-  å;
+
   async updateUserInfo(
     userId: number,
     dto: UserUpdateDto,
