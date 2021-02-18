@@ -307,4 +307,70 @@ describe('BoardService Logic test', () => {
       expect(exception).toBeInstanceOf(ForbiddenException);
     }
   });
+
+  it('removeBoard(): Should successfully remove', async () => {
+    const savedUser = await saveBoard();
+    const boardId = savedUser.boards[0].getBoard_id;
+    await boardService.removeBoard(
+      generateAccessToken(savedUser.getUser_id),
+      savedUser.getUser_id,
+      boardId,
+    );
+    const board = await boardRepository.findOne(boardId);
+    expect(board).toBeUndefined();
+  });
+
+  it('removeBoard(): Should throw UnAuthorizedException if token is wrong', async () => {
+    const savedUser = await saveBoard();
+    const boardId = savedUser.boards[0].getBoard_id;
+    expect.assertions(1);
+    try {
+      await boardService.removeBoard(
+        WRONG_TOKEN,
+        savedUser.getUser_id,
+        boardId,
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(UnauthorizedException);
+    }
+  });
+
+  it('removeBoard(): Should throw NotFoundException if userId is invalid', async () => {
+    const boardId = (await saveBoard()).boards[0].getBoard_id;
+    expect.assertions(1);
+    try {
+      await boardService.removeBoard(generateAccessToken(-1), -1, boardId);
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(NotFoundException);
+    }
+  });
+
+  it('removeBoard(): Should throw ForbiddenException if userId is not owner of boardId', async () => {
+    let wrongUser = new User();
+    wrongUser.setEmail = 'test2@test2.com';
+    wrongUser.setName = 'NAME';
+    wrongUser.setPassword = 'PASSWORD';
+    wrongUser = await userRepository.save(wrongUser);
+    const wrongUserId = wrongUser.getUser_id;
+    const boardId = (await saveBoard()).boards[0].getBoard_id;
+    expect.assertions(1);
+    try {
+      await boardService.removeBoard(
+        generateAccessToken(wrongUserId),
+        wrongUserId,
+        boardId,
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(ForbiddenException);
+    }
+  });
+
+  it('removeBoard(): Should throw ForbiddenException if userId in token and path parameter is different', async () => {
+    expect.assertions(1);
+    try {
+      await boardService.removeBoard(generateAccessToken(-1), 1, 1);
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(ForbiddenException);
+    }
+  });
 });

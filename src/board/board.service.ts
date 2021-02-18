@@ -84,9 +84,22 @@ export class BoardService {
         'userId in parameter and token is different',
       );
     }
-    const result = await this.boardRepository.delete(boardId);
-    if (result.affected !== 0) {
-      return new BasicMessageDto('Deleted Successfully.');
-    } else throw new NotFoundException();
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['boards'],
+    });
+    if (!!user) {
+      const board = user.boards.filter(
+        (board) => board.getBoard_id === boardId,
+      )[0];
+      if (!!board) {
+        const result = await this.boardRepository.delete(board.getBoard_id);
+        if (result.affected !== 0) {
+          return new BasicMessageDto('Deleted Successfully.');
+        } else throw new InternalServerErrorException('Something went wrong,,');
+      } else
+        throw new ForbiddenException(
+          'User of userId is not owner of this board.',
+        );
+    } else throw new NotFoundException('userId is invalid.');
   }
 }
