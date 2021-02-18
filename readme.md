@@ -34,10 +34,10 @@
 - 구현할 API 들은 아래와 같다.
 
 - [x] 회원 등록 : `[POST] /user`
-- [x] 회원 정보 수정 : `[PATCH] /user/{userId}`
+- [x] 회원 정보 수정 : `[PUT] /user/{userId}`
 - [x] 회원 정보 조회 : `[GET] /user/{userId}`
 - [x] 회원 정보 삭제 : `[DELETE] /user/{userId}`
-- [ ] 글 등록 : `[POST] /board`
+- [ ] 글 등록 : `[POST] /user/board/{userId}`
+- [ ] 글 수정 : `[PATCH] /user/board/{userId}/{boardId}`
 - [ ] 글 조회 : `[GET] /board/{boardId}`
-- [ ] 글 수정 : `[PATCH] /board/{boardId}`
 - [ ] 글 삭제 : `[DELETE] /board/{boardId}`
