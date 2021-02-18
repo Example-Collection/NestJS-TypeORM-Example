@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -26,7 +27,8 @@ export class Board extends BaseEntity {
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   private last_modified_at: Date;
 
-  @ManyToOne((type) => User, (user) => user.boards)
+  @ManyToOne(() => User, (user) => user.boards)
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   get getBoard_id(): number {

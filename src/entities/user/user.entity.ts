@@ -21,7 +21,7 @@ export class User extends BaseEntity {
   @Column({ nullable: false })
   private password: string;
 
-  @OneToMany((type) => Board, (board) => board.user)
+  @OneToMany(() => Board, (board) => board.user)
   boards: Board[];
 
   get getUser_id(): number {
