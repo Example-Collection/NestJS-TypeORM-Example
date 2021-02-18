@@ -14,6 +14,7 @@ import { Board } from '../src/entities/board/board.entity';
 import { BoardService } from '../src/board/board.service';
 import { BoardCreateDto } from '../src/board/dtos/create-board-dto';
 import { BoardInfoResponseDto } from '../src/board/dtos/board-info.dto';
+import { check } from 'prettier';
 
 describe('UserController (e2e)', () => {
   let userService: UserService;
@@ -34,6 +35,20 @@ describe('UserController (e2e)', () => {
     savedUser.setName = NAME;
     savedUser.setPassword = PASSWORD;
     return await userRepository.save(savedUser);
+  };
+
+  const getBoardCreateDto = (): BoardCreateDto => {
+    const dto = new BoardCreateDto();
+    dto.title = TITLE;
+    dto.content = CONTENT;
+    return dto;
+  };
+
+  const assertThatBoardIsNotSaved = async (userId: number): Promise<void> => {
+    const checkUser = await userRepository.findOne(userId, {
+      relations: ['boards'],
+    });
+    expect(checkUser.boards.length).toBe(0);
   };
 
   beforeAll(async () => {
@@ -281,9 +296,7 @@ describe('UserController (e2e)', () => {
   });
 
   it('[POST] /user/board/{userId} : Response is OK if all conditions are right', async () => {
-    const dto = new BoardCreateDto();
-    dto.content = CONTENT;
-    dto.title = TITLE;
+    const dto = getBoardCreateDto();
     const savedUser = await saveUser();
     const userId = savedUser.getUser_id;
     const token = generateAccessToken(userId);
@@ -304,5 +317,46 @@ describe('UserController (e2e)', () => {
     ).toBeTruthy();
     expect(response.userId).toBe(userId);
     expect(response.name).toBe(NAME);
+  });
+
+  it('[POST] /user/board/{userId} : Response is NOT_FOUND if userId is invalid', async () => {
+    const dto = getBoardCreateDto();
+    const token = generateAccessToken(-1);
+    const result = await request(app.getHttpServer())
+      .post(`/user/board/-1`)
+      .set('authorization', `Bearer ${token}`)
+      .send(dto);
+    expect(result.status).toBe(HttpStatus.NOT_FOUND);
+  });
+
+  it('[POST] /user/board/{userId} : Response is UNAUTHORIZED if token is malformed', async () => {
+    const dto = getBoardCreateDto();
+    const result = await request(app.getHttpServer())
+      .post(`/user/board/-1`)
+      .set('authorization', `Bearer ${WRONG_TOKEN}`)
+      .send(dto);
+    expect(result.status).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
+  it('[POST] /user/board/{userId} : Response is FORBIDDEN if userId in token and userId in path parameter is different', async () => {
+    const dto = getBoardCreateDto();
+    const savedUser = await saveUser();
+    const token = generateAccessToken(-1);
+    const result = await request(app.getHttpServer())
+      .post(`/user/board/${savedUser.getUser_id}`)
+      .set('authorization', `Bearer ${token}`)
+      .send(dto);
+    expect(result.status).toBe(HttpStatus.FORBIDDEN);
+    await assertThatBoardIsNotSaved(savedUser.getUser_id);
+  });
+
+  it('[POST] /user/board/{userId} : Response is BAD_REQUEST if authorization header is missing', async () => {
+    const dto = getBoardCreateDto();
+    const savedUser = await saveUser();
+    const result = await request(app.getHttpServer())
+      .post(`/user/board/${savedUser.getUser_id}`)
+      .send(dto);
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST);
+    await assertThatBoardIsNotSaved(savedUser.getUser_id);
   });
 });

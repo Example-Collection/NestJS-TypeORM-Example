@@ -71,8 +71,6 @@ describe('BoardService Logic test', () => {
     expect(result).toBeInstanceOf(BoardInfoResponseDto);
     expect(result.content).toBe(CONTENT);
     expect(result.title).toBe(TITLE);
-    // expect(new Date() > result.createdAt).toBeTruthy();
-    // expect(new Date() > result.lastModifiedAt).toBeTruthy();
     expect(
       Date.now() > new Date(result.createdAt).getMilliseconds(),
     ).toBeTruthy();
