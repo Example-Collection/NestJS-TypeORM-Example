@@ -39,5 +39,6 @@
 - [x] 회원 정보 삭제 : `[DELETE] /user/{userId}`
 - [ ] 글 등록 : `[POST] /user/board/{userId}`
 - [ ] 글 수정 : `[PATCH] /user/board/{userId}/{boardId}`
-- [ ] 글 조회 : `[GET] /board/{boardId}`
-- [ ] 글 삭제 : `[DELETE] /board/{boardId}`
+- [ ] 글 삭제 : `[DELETE] /user/board/{userId}/{boardId}`
+- [ ] 특정 글 조회 : `[GET] /board/{boardId}`
+- [ ] 글 조회 : `[GET] /board?page=number&size=number`
