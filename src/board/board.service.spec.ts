@@ -193,7 +193,6 @@ describe('BoardService Logic test', () => {
     const requestDto = new BoardUpdateDto();
     requestDto.title = 'NEW_TITLE';
     requestDto.content = 'NEW_CONTENT';
-    jest.setTimeout(500);
     await boardService.updateBoard(
       requestDto,
       generateAccessToken(userId),

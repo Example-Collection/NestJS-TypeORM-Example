@@ -15,6 +15,7 @@ import { BoardService } from '../src/board/board.service';
 import { BoardCreateDto } from '../src/board/dtos/create-board-dto';
 import { BoardInfoResponseDto } from '../src/board/dtos/board-info.dto';
 import { UserInfoResponseDto } from '../src/user/dtos/user-info.dto';
+import { BoardUpdateDto } from '../src/board/dtos/update-board.dto';
 
 describe('UserController (e2e)', () => {
   let userService: UserService;
@@ -44,11 +45,30 @@ describe('UserController (e2e)', () => {
     return dto;
   };
 
+  const getBoardUpdateDto = (): BoardUpdateDto => {
+    const dto = new BoardUpdateDto();
+    dto.title = 'NEW_TITLE';
+    dto.content = 'NEW_CONTENT';
+    return dto;
+  };
+
   const assertThatBoardIsNotSaved = async (userId: number): Promise<void> => {
     const checkUser = await userRepository.findOne(userId, {
       relations: ['boards'],
     });
     expect(checkUser.boards.length).toBe(0);
+  };
+
+  const saveBoard = async (): Promise<User> => {
+    const savedUser = await saveUser();
+    const board = new Board();
+    board.setContent = CONTENT;
+    board.setTitle = TITLE;
+    board.user = savedUser;
+    await boardRepository.save(board);
+    return userRepository.findOne(savedUser.getUser_id, {
+      relations: ['boards'],
+    });
   };
 
   beforeAll(async () => {
@@ -358,5 +378,89 @@ describe('UserController (e2e)', () => {
       .send(dto);
     expect(result.status).toBe(HttpStatus.BAD_REQUEST);
     await assertThatBoardIsNotSaved(savedUser.getUser_id);
+  });
+
+  it('[PATCH] /user/board/{userId}/{boardId} : Response is OK if all conditions are right', async () => {
+    const savedUser = await saveBoard();
+    const userId = savedUser.getUser_id;
+    const boardId = savedUser.boards[0].getBoard_id;
+    const dto = getBoardUpdateDto();
+    const result = await request(app.getHttpServer())
+      .patch(`/user/board/${userId}/${boardId}`)
+      .set('authorization', `Bearer ${generateAccessToken(userId)}`)
+      .send(dto);
+
+    expect(result.status).toBe(HttpStatus.OK);
+    const updatedBoard = await boardRepository.findOne(boardId);
+    expect(updatedBoard.getBoard_id).toBe(boardId);
+    expect(updatedBoard.getContent).toBe('NEW_CONTENT');
+    expect(updatedBoard.getTitle).toBe('NEW_TITLE');
+  });
+
+  it('[PATCH] /user/board/{userId}/{boardId} : Response is UNAUTHORIZED if token is malformed', async () => {
+    const savedUser = await saveBoard();
+    const userId = savedUser.getUser_id;
+    const boardId = savedUser.boards[0].getBoard_id;
+    const dto = getBoardUpdateDto();
+    const result = await request(app.getHttpServer())
+      .patch(`/user/board/${userId}/${boardId}`)
+      .set('authorization', `Bearer ${WRONG_TOKEN}`)
+      .send(dto);
+
+    expect(result.status).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
+  it('[PATCH] /user/board/{userId}/{boardId} : Response is BAD_REQUEST if authorization header is missing', async () => {
+    const savedUser = await saveBoard();
+    const userId = savedUser.getUser_id;
+    const boardId = savedUser.boards[0].getBoard_id;
+    const dto = getBoardUpdateDto();
+    const result = await request(app.getHttpServer())
+      .patch(`/user/board/${userId}/${boardId}`)
+      .send(dto);
+
+    expect(result.status).toBe(HttpStatus.BAD_REQUEST);
+  });
+
+  it('[PATCH] /user/board/{userId}/{boardId} : Response is NOT_FOUND if userId is invalid', async () => {
+    const savedUser = await saveBoard();
+    const boardId = savedUser.boards[0].getBoard_id;
+    const dto = getBoardUpdateDto();
+    const result = await request(app.getHttpServer())
+      .patch(`/user/board/-1/${boardId}`)
+      .set('authorization', `Bearer ${generateAccessToken(-1)}`)
+      .send(dto);
+
+    expect(result.status).toBe(HttpStatus.NOT_FOUND);
+  });
+
+  it('[PATCH] /user/board/{userId}/{boardId} : Response is FORBIDDEN if userId in token and path parameter is different', async () => {
+    const savedUser = await saveBoard();
+    const userId = savedUser.getUser_id;
+    const boardId = savedUser.boards[0].getBoard_id;
+    const dto = getBoardUpdateDto();
+    const result = await request(app.getHttpServer())
+      .patch(`/user/board/-1/${boardId}`)
+      .set('authorization', `Bearer ${generateAccessToken(userId)}`)
+      .send(dto);
+
+    expect(result.status).toBe(HttpStatus.FORBIDDEN);
+  });
+
+  it('[PATCH] /user/board/{userId}/{boardId} : Response is FORBIDDEN if userId is not owner of boardId', async () => {
+    let wrongUser = new User();
+    wrongUser.setEmail = 'test2@test2.com';
+    wrongUser.setName = 'NAME';
+    wrongUser.setPassword = 'PASSWORD';
+    wrongUser = await userRepository.save(wrongUser);
+    const wrongUserId = wrongUser.getUser_id;
+    const boardId = (await saveBoard()).boards[0].getBoard_id;
+    const dto = getBoardUpdateDto();
+    const result = await request(app.getHttpServer())
+      .patch(`/user/board/${wrongUserId}/${boardId}`)
+      .set('authorization', `Bearer ${generateAccessToken(wrongUserId)}`)
+      .send(dto);
+
+    expect(result.status).toBe(HttpStatus.FORBIDDEN);
   });
 });
