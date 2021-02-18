@@ -11,7 +11,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { request } from 'express';
 
 describe('BoardService Logic test', () => {
   let boardService: BoardService;
