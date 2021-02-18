@@ -14,7 +14,7 @@ import { Board } from '../src/entities/board/board.entity';
 import { BoardService } from '../src/board/board.service';
 import { BoardCreateDto } from '../src/board/dtos/create-board-dto';
 import { BoardInfoResponseDto } from '../src/board/dtos/board-info.dto';
-import { check } from 'prettier';
+import { UserInfoResponseDto } from '../src/user/dtos/user-info.dto';
 
 describe('UserController (e2e)', () => {
   let userService: UserService;
@@ -99,12 +99,10 @@ describe('UserController (e2e)', () => {
       .send(dto)
       .expect(HttpStatus.CREATED);
 
-    const userId = (await userRepository.findOne()).getUser_id;
-    expect(JSON.stringify(result.body)).toBe(
-      JSON.stringify(
-        await userService.getUserInfo(userId, generateAccessToken(userId)),
-      ),
-    );
+    const response = result.body as UserInfoResponseDto;
+    expect(response.email).toBe(EMAIL);
+    expect(response.name).toBe(NAME);
+    expect(typeof response.user_id).toBe('number');
   });
 
   it('[POST] /user: Response is BAD_REQUEST if email is missing', async () => {
@@ -158,9 +156,11 @@ describe('UserController (e2e)', () => {
       .get(`/user/${userId}`)
       .set('authorization', `Bearer ${token}`);
     expect(result.status).toBe(HttpStatus.OK);
-    expect(JSON.stringify(result.body)).toBe(
-      JSON.stringify(await userService.getUserInfo(userId, token)),
-    );
+
+    const response = result.body as UserInfoResponseDto;
+    expect(response.user_id).toBe(userId);
+    expect(response.email).toBe(EMAIL);
+    expect(response.name).toBe(NAME);
   });
 
   it('[GET] /user/{userId} : Response is NOT_FOUND if userId does not exist', async () => {
