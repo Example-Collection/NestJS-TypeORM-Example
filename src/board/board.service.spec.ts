@@ -373,4 +373,27 @@ describe('BoardService Logic test', () => {
       expect(exception).toBeInstanceOf(ForbiddenException);
     }
   });
+
+  it('getBoardById(): Should return correct informations of a board', async () => {
+    const writer = await saveBoard();
+    const board = writer.boards[0];
+
+    const result = await boardService.getByBoardId(board.getBoard_id);
+
+    expect(result.boardId).toBe(board.getBoard_id);
+    expect(result.content).toBe(board.getContent);
+    expect(result.name).toBe(writer.getName);
+    expect(result.userId).toBe(writer.getUser_id);
+    expect(typeof result.createdAt).toBeDefined();
+    expect(typeof result.lastModifiedAt).toBeDefined();
+  });
+
+  it('getBoardById(): Should throw NotFoundException if boardId is invalid', async () => {
+    expect.assertions(1);
+    try {
+      await boardService.getByBoardId(-1);
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(NotFoundException);
+    }
+  });
 });
