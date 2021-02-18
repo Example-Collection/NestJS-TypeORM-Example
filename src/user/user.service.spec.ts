@@ -231,7 +231,7 @@ describe('UserService Logic Test', () => {
     updateDto.password = 'NEW_PASSWORD';
     updateDto.name = 'NEW_NAME';
     try {
-      await userService.updateUserInfo(1, updateDto, generateAccessToken(1));
+      await userService.updateUserInfo(-1, updateDto, generateAccessToken(-1));
     } catch (exception) {
       expect(exception).toBeInstanceOf(NotFoundException);
     }
@@ -270,6 +270,15 @@ describe('UserService Logic Test', () => {
       await userService.removeUser(savedUser.getUser_id, WRONG_TOKEN);
     } catch (exception) {
       expect(exception).toBeInstanceOf(UnauthorizedException);
+    }
+  });
+
+  it('removeUser(): Should throw NotFoundException if token is wrong', async () => {
+    expect.assertions(1);
+    try {
+      await userService.removeUser(-1, generateAccessToken(-1));
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(NotFoundException);
     }
   });
 
