@@ -11,7 +11,7 @@ import { BoardInfoResponseDto } from './dtos/board-info.dto';
 import { extractUserId } from '../utils/auth/jwt-token-util';
 import { Board } from '../entities/board/board.entity';
 import { BoardUpdateDto } from './dtos/update-board.dto';
-import { BasicMessageDto } from 'src/common/dtos/basic-message.dto';
+import { BasicMessageDto } from '../common/dtos/basic-message.dto';
 
 @Injectable()
 export class BoardService {

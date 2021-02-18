@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
   Req,
 } from '@nestjs/common';
 import { UserCreateDto } from '../user/dtos/create-user.dto';
@@ -21,7 +22,7 @@ import IUserRequest from '../interfaces/user-request';
 import { BoardCreateDto } from '../board/dtos/create-board-dto';
 import { BoardInfoResponseDto } from '../board/dtos/board-info.dto';
 import { BoardService } from '../board/board.service';
-import { BoardUpdateDto } from 'src/board/dtos/update-board.dto';
+import { BoardUpdateDto } from '../board/dtos/update-board.dto';
 
 @Controller('user')
 export class UserController {
@@ -43,7 +44,7 @@ export class UserController {
     return this.userService.getUserInfo(userId, req.accessToken);
   }
 
-  @Patch('/:userId')
+  @Put('/:userId')
   updateUserInfo(
     @Param('userId', ParseIntPipe) userId: number,
     @Body() dto: UserUpdateDto,

@@ -196,7 +196,7 @@ describe('UserController (e2e)', () => {
     expect(result.status).toBe(HttpStatus.UNAUTHORIZED);
   });
 
-  it('[PATCH] /user/{userId} : Response is OK if all conditions are right', async () => {
+  it('[PUT] /user/{userId} : Response is OK if all conditions are right', async () => {
     const savedUser = await saveUser();
     const userId = savedUser.getUser_id;
 
@@ -206,7 +206,7 @@ describe('UserController (e2e)', () => {
     updateDto.password = 'NEW_PASSWORD';
 
     const result = await request(app.getHttpServer())
-      .patch(`/user/${userId}`)
+      .put(`/user/${userId}`)
       .set('authorization', `Bearer ${token}`)
       .send(updateDto);
 
@@ -216,14 +216,14 @@ describe('UserController (e2e)', () => {
     expect(updatedUser.getPassword).toBe('NEW_PASSWORD');
   });
 
-  it('[PATCH] /user/{userId} : Response is UNAUTHOZIRED if token is malformed.', async () => {
+  it('[PUT] /user/{userId} : Response is UNAUTHOZIRED if token is malformed.', async () => {
     const result = await request(app.getHttpServer())
-      .patch(`/user/-1`)
+      .put(`/user/-1`)
       .set('authorization', `Bearer ${WRONG_TOKEN}`);
     expect(result.status).toBe(HttpStatus.UNAUTHORIZED);
   });
 
-  it('[PATCH] /user/{userId} : Response is FORBIDDEN if userId in token and userId in path parameter is different', async () => {
+  it('[PUT] /user/{userId} : Response is FORBIDDEN if userId in token and userId in path parameter is different', async () => {
     const savedUser = await saveUser();
     const userId = savedUser.getUser_id;
 
@@ -233,7 +233,7 @@ describe('UserController (e2e)', () => {
     updateDto.password = 'NEW_PASSWORD';
 
     const result = await request(app.getHttpServer())
-      .patch(`/user/${userId}`)
+      .put(`/user/${userId}`)
       .set('authorization', `Bearer ${token}`)
       .send(updateDto);
     expect(result.status).toBe(HttpStatus.FORBIDDEN);
@@ -243,7 +243,7 @@ describe('UserController (e2e)', () => {
     expect(updatedUser.getPassword).toBe(PASSWORD);
   });
 
-  it('[PATCH] /user/{userId} : Response is BAD_REQUEST if authorization header is missing', async () => {
+  it('[PUT] /user/{userId} : Response is BAD_REQUEST if authorization header is missing', async () => {
     const savedUser = await saveUser();
     const userId = savedUser.getUser_id;
 
@@ -252,7 +252,7 @@ describe('UserController (e2e)', () => {
     updateDto.password = 'NEW_PASSWORD';
 
     const result = await request(app.getHttpServer())
-      .patch(`/user/${userId}`)
+      .put(`/user/${userId}`)
       .send(updateDto);
     expect(result.status).toBe(HttpStatus.BAD_REQUEST);
   });
