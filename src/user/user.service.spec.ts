@@ -225,6 +225,18 @@ describe('UserService Logic Test', () => {
     }
   });
 
+  it('updateUserInfo(): Should throw NotFoundException if userId is invalid', async () => {
+    expect.assertions(1);
+    const updateDto = new UserUpdateDto();
+    updateDto.password = 'NEW_PASSWORD';
+    updateDto.name = 'NEW_NAME';
+    try {
+      await userService.updateUserInfo(1, updateDto, generateAccessToken(1));
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(NotFoundException);
+    }
+  });
+
   it('removeUser(): Should remove user', async () => {
     const savedUser = await saveUser();
 
