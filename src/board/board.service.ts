@@ -20,8 +20,6 @@ export class BoardService {
     private readonly userRepository: UserRepository,
   ) {}
 
-  // TODO : Paging 처리해서 가져오기(Token 불필요)
-
   async saveBoard(
     dto: BoardCreateDto,
     token: string,
@@ -73,6 +71,6 @@ export class BoardService {
         throw new ForbiddenException(
           'User of userId is not owner of this board.',
         );
-    }
+    } else throw new NotFoundException('userId is invalid.');
   }
 }

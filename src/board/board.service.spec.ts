@@ -11,6 +11,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { BoardUpdateDto } from './dtos/update-board.dto';
 
 describe('BoardService Logic test', () => {
   let boardService: BoardService;
@@ -30,7 +31,7 @@ describe('BoardService Logic test', () => {
     savedUser.setEmail = EMAIL;
     savedUser.setName = NAME;
     savedUser.setPassword = PASSWORD;
-    return await userRepository.save(savedUser);
+    return userRepository.save(savedUser);
   };
 
   const getBoardCreateDto = (): BoardCreateDto => {
@@ -38,6 +39,18 @@ describe('BoardService Logic test', () => {
     dto.content = CONTENT;
     dto.title = TITLE;
     return dto;
+  };
+
+  const saveBoard = async (): Promise<User> => {
+    const savedUser = await saveUser();
+    const board = new Board();
+    board.setContent = CONTENT;
+    board.setTitle = TITLE;
+    board.user = savedUser;
+    await boardRepository.save(board);
+    return userRepository.findOne(savedUser.getUser_id, {
+      relations: ['boards'],
+    });
   };
 
   beforeAll(async () => {
@@ -129,6 +142,167 @@ describe('BoardService Logic test', () => {
         requestDto,
         generateAccessToken(-1),
         savedUser.getUser_id,
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(ForbiddenException);
+    }
+  });
+
+  it('updateBoard(): Should update only content', async () => {
+    const savedUser = await saveBoard();
+    const userId = savedUser.getUser_id;
+    const boardId = savedUser.boards[0].getBoard_id;
+    const requestDto = new BoardUpdateDto();
+    requestDto.content = 'NEW_CONTENT';
+    jest.setTimeout(500);
+    await boardService.updateBoard(
+      requestDto,
+      generateAccessToken(userId),
+      userId,
+      boardId,
+    );
+    const updatedBoard = await boardRepository.findOne(boardId);
+    expect(updatedBoard.getBoard_id).toBe(boardId);
+    expect(updatedBoard.getContent).toBe('NEW_CONTENT');
+    expect(updatedBoard.getTitle).toBe(TITLE);
+  });
+
+  it('updateBoard(): Should update only title', async () => {
+    const savedUser = await saveBoard();
+    const userId = savedUser.getUser_id;
+    const boardId = savedUser.boards[0].getBoard_id;
+    const requestDto = new BoardUpdateDto();
+    requestDto.title = 'NEW_TITLE';
+    jest.setTimeout(500);
+    await boardService.updateBoard(
+      requestDto,
+      generateAccessToken(userId),
+      userId,
+      boardId,
+    );
+    const updatedBoard = await boardRepository.findOne(boardId);
+    expect(updatedBoard.getBoard_id).toBe(boardId);
+    expect(updatedBoard.getContent).toBe(CONTENT);
+    expect(updatedBoard.getTitle).toBe('NEW_TITLE');
+  });
+
+  it('updateBoard(): Should update both title and content', async () => {
+    const savedUser = await saveBoard();
+    const userId = savedUser.getUser_id;
+    const boardId = savedUser.boards[0].getBoard_id;
+    const requestDto = new BoardUpdateDto();
+    requestDto.title = 'NEW_TITLE';
+    requestDto.content = 'NEW_CONTENT';
+    jest.setTimeout(500);
+    await boardService.updateBoard(
+      requestDto,
+      generateAccessToken(userId),
+      userId,
+      boardId,
+    );
+    const updatedBoard = await boardRepository.findOne(boardId);
+    expect(updatedBoard.getBoard_id).toBe(boardId);
+    expect(updatedBoard.getContent).toBe('NEW_CONTENT');
+    expect(updatedBoard.getTitle).toBe('NEW_TITLE');
+  });
+
+  it('updateBoard(): Should throw NotFoundException if userId is invalid', async () => {
+    const requestDto = new BoardUpdateDto();
+    requestDto.content = 'NEW_CONTENT';
+    requestDto.title = 'NEW_TITLE';
+    const savedUser = await saveBoard();
+    const boardId = savedUser.boards[0].getBoard_id;
+    expect.assertions(1);
+    try {
+      await boardService.updateBoard(
+        requestDto,
+        generateAccessToken(-1),
+        -1,
+        boardId,
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(NotFoundException);
+    }
+  });
+
+  it('updateBoard(): Should throw ForbiddenException if userId is not owner of board', async () => {
+    const savedUser = await saveBoard();
+    const boardId = savedUser.boards[0].getBoard_id;
+    let secondUser = new User();
+    secondUser.setEmail = 'test2@test2.com';
+    secondUser.setName = 'NAME';
+    secondUser.setPassword = 'PASSWORD';
+    secondUser = await userRepository.save(secondUser);
+    const secondSavedUserId = secondUser.getUser_id;
+    const requestDto = new BoardUpdateDto();
+    requestDto.content = 'NEW_CONTENT';
+    requestDto.title = 'NEW_TITLE';
+    expect.assertions(1);
+    try {
+      await boardService.updateBoard(
+        requestDto,
+        generateAccessToken(secondSavedUserId),
+        secondSavedUserId,
+        boardId,
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(ForbiddenException);
+    }
+  });
+
+  it('updateBoard(): Should throw ForbiddenException if userId in token and userId in path parameter is different.', async () => {
+    const savedUser = await saveBoard();
+    const boardId = savedUser.boards[0].getBoard_id;
+    expect.assertions(1);
+    const requestDto = new BoardUpdateDto();
+    requestDto.content = 'NEW_CONTENT';
+    try {
+      await boardService.updateBoard(
+        requestDto,
+        generateAccessToken(-1),
+        savedUser.getUser_id,
+        boardId,
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(ForbiddenException);
+    }
+  });
+
+  it('updateBoard(): Should throw UnauthorizedException if token is wrong', async () => {
+    const savedUser = await saveBoard();
+    const boardId = savedUser.boards[0].getBoard_id;
+    expect.assertions(1);
+    const requestDto = new BoardUpdateDto();
+    requestDto.content = 'NEW_CONTENT';
+    try {
+      await boardService.updateBoard(
+        requestDto,
+        WRONG_TOKEN,
+        savedUser.getUser_id,
+        boardId,
+      );
+    } catch (exception) {
+      expect(exception).toBeInstanceOf(UnauthorizedException);
+    }
+  });
+
+  it('updateBoard(): Should throw ForbiddenException if board owner is not userId', async () => {
+    let wrongUser = new User();
+    wrongUser.setEmail = 'test2@test2.com';
+    wrongUser.setName = 'NAME';
+    wrongUser.setPassword = 'PASSWORD';
+    wrongUser = await userRepository.save(wrongUser);
+    const wrongUserId = wrongUser.getUser_id;
+    const boardId = (await saveBoard()).boards[0].getBoard_id;
+    const requestDto = new BoardUpdateDto();
+    requestDto.content = 'NEW_CONTENT';
+    expect.assertions(1);
+    try {
+      await boardService.updateBoard(
+        requestDto,
+        generateAccessToken(wrongUserId),
+        wrongUserId,
+        boardId,
       );
     } catch (exception) {
       expect(exception).toBeInstanceOf(ForbiddenException);
