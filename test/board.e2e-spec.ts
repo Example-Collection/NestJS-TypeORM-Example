@@ -26,12 +26,12 @@ describe('BoardController (e2e)', () => {
     return await userRepository.save(savedUser);
   };
 
-  const saveBoard = async (count: number): Promise<User> => {
+  const saveBoards = async (count: number): Promise<User> => {
     const savedUser = await saveUser();
     for (let i = 0; i < count; i++) {
       const board = new Board();
-      board.setContent = CONTENT;
-      board.setTitle = TITLE;
+      board.setContent = `${CONTENT + count}`;
+      board.setTitle = `${TITLE + count}`;
       board.user = savedUser;
       await boardRepository.save(board);
     }
@@ -77,7 +77,7 @@ describe('BoardController (e2e)', () => {
   });
 
   it('[GET] /board/{boardId} : Response is OK if conditions are right', async () => {
-    const savedUser = await saveBoard(1);
+    const savedUser = await saveBoards(1);
     const boardId = savedUser.boards[0].getBoard_id;
 
     const result = await request(app.getHttpServer())
@@ -87,8 +87,8 @@ describe('BoardController (e2e)', () => {
     expect(response.name).toBe(NAME);
     expect(response.userId).toBe(savedUser.getUser_id);
     expect(response.boardId).toBe(boardId);
-    expect(response.content).toBe(CONTENT);
-    expect(response.title).toBe(TITLE);
+    expect(response.content).toBe(`${CONTENT + 1}`);
+    expect(response.title).toBe(`${TITLE + 1}`);
   });
 
   it('[GET] /board/{boardId} : Response is NOT_FOUND if boardId is invalid', async () => {

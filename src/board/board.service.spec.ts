@@ -53,6 +53,20 @@ describe('BoardService Logic test', () => {
     });
   };
 
+  const saveBoards = async (count: number): Promise<User> => {
+    const savedUser = await saveUser();
+    for (let i = 0; i < count; i++) {
+      const board = new Board();
+      board.setContent = `${CONTENT + count}`;
+      board.setTitle = `${TITLE + count}`;
+      board.user = savedUser;
+      await boardRepository.save(board);
+    }
+    return userRepository.findOne(savedUser.getUser_id, {
+      relations: ['boards'],
+    });
+  };
+
   beforeAll(async () => {
     connection = await createMemoryDB([User, Board]);
     userRepository = await connection.getRepository(User);
