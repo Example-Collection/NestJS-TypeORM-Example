@@ -3,7 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { User } from '../src/entities/user/user.entity';
 import { UserCreateDto } from '../src/user/dtos/create-user.dto';
 import { UserModule } from '../src/user/user.module';
-import { UserService } from '../src/user/user.service';
 import { Repository } from 'typeorm';
 import * as request from 'supertest';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,15 +10,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { generateAccessToken } from '../src/utils/auth/jwt-token-util';
 import { UserUpdateDto } from '../src/user/dtos/update-user.dto';
 import { Board } from '../src/entities/board/board.entity';
-import { BoardService } from '../src/board/board.service';
 import { BoardCreateDto } from '../src/board/dtos/create-board-dto';
 import { BoardInfoResponseDto } from '../src/board/dtos/board-info.dto';
 import { UserInfoResponseDto } from '../src/user/dtos/user-info.dto';
 import { BoardUpdateDto } from '../src/board/dtos/update-board.dto';
 
 describe('UserController (e2e)', () => {
-  let userService: UserService;
-  let boardService: BoardService;
   let userRepository: Repository<User>;
   let boardRepository: Repository<Board>;
   let app: INestApplication;
@@ -96,8 +92,6 @@ describe('UserController (e2e)', () => {
     await app.init();
     userRepository = moduleFixture.get('UserRepository');
     boardRepository = moduleFixture.get('BoardRepository');
-    userService = new UserService(userRepository);
-    boardService = new BoardService(boardRepository, userRepository);
   });
 
   afterAll(async () => {

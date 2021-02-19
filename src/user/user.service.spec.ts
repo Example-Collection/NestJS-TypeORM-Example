@@ -38,7 +38,7 @@ describe('UserService Logic Test', () => {
 
   beforeAll(async () => {
     connection = await createMemoryDB([User, Board]);
-    userRepository = await connection.getRepository(User);
+    userRepository = connection.getRepository(User);
     userService = new UserService(userRepository);
   });
 

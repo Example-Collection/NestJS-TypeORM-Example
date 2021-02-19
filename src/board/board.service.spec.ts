@@ -69,8 +69,8 @@ describe('BoardService Logic test', () => {
 
   beforeAll(async () => {
     connection = await createMemoryDB([User, Board]);
-    userRepository = await connection.getRepository(User);
-    boardRepository = await connection.getRepository(Board);
+    userRepository = connection.getRepository(User);
+    boardRepository = connection.getRepository(Board);
     boardService = new BoardService(boardRepository, userRepository);
   });
 
