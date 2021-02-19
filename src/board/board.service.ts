@@ -112,4 +112,13 @@ export class BoardService {
       return new BoardInfoResponseDto(writer, board);
     } else throw new NotFoundException('boardId is invalid.');
   }
+
+  async getBoards(page: number, size: number): Promise<BoardInfoResponseDto[]> {
+    const board = await this.boardRepository.find({
+      skip: page * size,
+      take: size,
+      relations: ['user'],
+    });
+    return board.map((board) => new BoardInfoResponseDto(board.user, board));
+  }
 }
