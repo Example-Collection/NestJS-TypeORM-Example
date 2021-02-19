@@ -410,4 +410,39 @@ describe('BoardService Logic test', () => {
       expect(exception).toBeInstanceOf(NotFoundException);
     }
   });
+
+  it('getBoards(): Should return array of 5 objects when page is 0 and size is 5 since 7 boards are saved', async () => {
+    const savedUser = await saveBoards(7);
+    const result = await boardService.getBoards(0, 5);
+    expect(result.length).toBe(5);
+    for (const board of result) {
+      expect(typeof board.boardId).toBe('number');
+      expect(board.content).toContain(CONTENT);
+      expect(board.createdAt).toBeDefined();
+      expect(board.lastModifiedAt).toBeDefined();
+      expect(board.name).toBe(NAME);
+      expect(board.title).toContain(TITLE);
+      expect(board.userId).toBe(savedUser.getUser_id);
+    }
+  });
+
+  it('getBoards(): Should return array of 2 objects when page is 1 and size is 5 since 7 boards are saved', async () => {
+    const savedUser = await saveBoards(7);
+    const result = await boardService.getBoards(1, 5);
+    expect(result.length).toBe(2);
+    for (const board of result) {
+      expect(typeof board.boardId).toBe('number');
+      expect(board.content).toContain(CONTENT);
+      expect(board.createdAt).toBeDefined();
+      expect(board.lastModifiedAt).toBeDefined();
+      expect(board.name).toBe(NAME);
+      expect(board.title).toContain(TITLE);
+      expect(board.userId).toBe(savedUser.getUser_id);
+    }
+  });
+
+  it('getBoards(): Should return an empty array since no boards are saved', async () => {
+    const result = await boardService.getBoards(0, 5);
+    expect(result.length).toBe(0);
+  });
 });
