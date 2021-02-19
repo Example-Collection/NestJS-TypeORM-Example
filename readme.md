@@ -40,5 +40,5 @@
 - [x] 글 등록 : `[POST] /user/board/{userId}`
 - [x] 글 수정 : `[PATCH] /user/board/{userId}/{boardId}`
 - [x] 글 삭제 : `[DELETE] /user/board/{userId}/{boardId}`
-- [ ] 특정 글 조회 : `[GET] /board/{boardId}`
-- [ ] 글 조회 : `[GET] /board?page=number&size=number`
+- [x] 특정 글 조회 : `[GET] /board/{boardId}`
+- [x] 글 조회 : `[GET] /board?page=number&size=number`
