@@ -90,4 +90,10 @@ describe('BoardController (e2e)', () => {
     expect(response.content).toBe(CONTENT);
     expect(response.title).toBe(TITLE);
   });
+
+  it('[GET] /board/{boardId} : Response is NOT_FOUND if boardId is invalid', async () => {
+    return request(app.getHttpServer())
+      .get('/board/-1')
+      .expect(HttpStatus.NOT_FOUND);
+  });
 });
