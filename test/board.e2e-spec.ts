@@ -96,4 +96,51 @@ describe('BoardController (e2e)', () => {
       .get('/board/-1')
       .expect(HttpStatus.NOT_FOUND);
   });
+
+  it('[GET] /board : Should return array of 5 objects since 7 boards are saved', async () => {
+    const savedUser = await saveBoards(7);
+    const result = await request(app.getHttpServer()).get(
+      '/board?page=0&size=5',
+    );
+    expect(result.status).toBe(HttpStatus.OK);
+    const response = result.body as BoardInfoResponseDto[];
+    expect(response.length).toBe(5);
+    for (const board of response) {
+      expect(typeof board.boardId).toBe('number');
+      expect(board.content).toContain(CONTENT);
+      expect(board.createdAt).toBeDefined();
+      expect(board.lastModifiedAt).toBeDefined();
+      expect(board.name).toBe(NAME);
+      expect(board.title).toContain(TITLE);
+      expect(board.userId).toBe(savedUser.getUser_id);
+    }
+  });
+
+  it('[GET] /board: Should return array of 2 objects since 7 boards are saved', async () => {
+    const savedUser = await saveBoards(7);
+    const result = await request(app.getHttpServer()).get(
+      '/board?page=1&size=5',
+    );
+    expect(result.status).toBe(HttpStatus.OK);
+    const response = result.body as BoardInfoResponseDto[];
+    expect(response.length).toBe(2);
+    for (const board of response) {
+      expect(typeof board.boardId).toBe('number');
+      expect(board.content).toContain(CONTENT);
+      expect(board.createdAt).toBeDefined();
+      expect(board.lastModifiedAt).toBeDefined();
+      expect(board.name).toBe(NAME);
+      expect(board.title).toContain(TITLE);
+      expect(board.userId).toBe(savedUser.getUser_id);
+    }
+  });
+
+  it('[GET] /board: Should return array of 0 objects since 0 boards are saved', async () => {
+    const result = await request(app.getHttpServer()).get(
+      '/board?page=0&size=5',
+    );
+    expect(result.status).toBe(HttpStatus.OK);
+    const response = result.body as BoardInfoResponseDto[];
+    expect(response.length).toBe(0);
+  });
 });
