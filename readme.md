@@ -6,7 +6,7 @@
 
 - 기술 스택 : TypeScript + NestJS + TypeORM
 
-- 개발하며 정리한 글들 : <a href="https://github.com/sangwoo-98/Study/tree/master/NestJS/TypeORM%20%2B%20NestJS">링크</a>
+- 개발하며 정리한 글들 : <a href="https://github.com/sang-w0o/Study/tree/master/Backend%20Frameworks/NestJS/TypeORM%20%2B%20NestJS">링크</a>
 
 <h2>기능 설명</h2>
 
